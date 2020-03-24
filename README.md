@@ -6,8 +6,6 @@ Provided largely as-is for the moment.
 
 ## Install
 
-If you don't want to compile yourself.
-
 1. Copy the plugin (dll/so) to a plugin location that RenderMan knows about.
 2. Copy the args files (arg) to the args sub-directory within that location.
 3. Done.
