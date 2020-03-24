@@ -1,0 +1,55 @@
+<args format="1.0">
+  <shaderType>
+    <tag value="projection"/>
+  </shaderType>
+  <help>
+    Action camera look.
+  </help>
+  <param name="look" 
+           label="GoPro Look" 
+           type="int" widget="checkBox"
+           default="1"
+           connectable="False">
+      <help>
+        GoPro Look. Enabled uses look for Hero4 to Hero7 cameras. 
+        Disabled uses stereographic projection which approxiamates GoPro lens.
+      </help>
+    </param>
+  <param name="primary" 
+           label="Primary" 
+           type="float" widget="default"
+           default="85.6" min="1" max="180" 
+           connectable="False">
+      <help>
+        Primary adjustment of the view. Default is 85.6.
+      </help>
+    </param>
+    <param name="secondary" 
+           label="Secondary" 
+           type="float" widget="default"
+           default="10.91" min="1" max="360" 
+           connectable="False">
+      <help>
+        Secondary adjustment of the the view. Default is 10.91.
+      </help>
+    </param>
+    <param name="tertiary" 
+           label="Tertiary" 
+           type="float" widget="default"
+           default="1.31" min="1.150" max="45" 
+           connectable="False">
+      <help>
+        Tweak on non-GoPro view. Default is 1.31.
+      </help>
+    </param>
+    <param name="maxradius" 
+           label="Max Radius" 
+           type="float" widget="default"
+           default="1.25" min="0.1" max="10" 
+           connectable="False">
+      <help>
+        Tweak on non-GoPro view. Default is 1.31.
+      </help>
+    </param>
+  <rfmdata nodeid="1201430" classification="RenderMan/projection"/>
+</args>

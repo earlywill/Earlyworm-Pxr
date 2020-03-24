@@ -1,0 +1,18 @@
+<args format="1.0">
+  <shaderType>
+    <tag value="projection"/>
+  </shaderType>
+  <help>
+    A fisheye camera.
+  </help>
+  <param name="fieldOfView" 
+           label="Field Of View" 
+           type="float" widget="default"
+           default="180" min="1" max="360" 
+           connectable="False">
+      <help>
+        Field of view. Fisheyes range from 120 to 180 degrees.
+      </help>
+    </param>
+  <rfmdata nodeid="1201430" classification="RenderMan/projection"/>
+</args>

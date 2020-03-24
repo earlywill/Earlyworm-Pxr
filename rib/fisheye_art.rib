@@ -1,0 +1,987 @@
+##RenderMan RIB
+##Render something which looks kind-of interesting.
+
+Option "ribparse" "string varsubst" [""]
+Option "ribparse" "string varsubst" ["$"]
+Attribute "user" "string renderversion" ["${RMAN_VERSION}"]
+
+
+Option "Ri" "int Frame" [1] "float PixelVariance" [0.01] "int[2] FormatResolution" [1024 1024]
+	"float[2] Shutter" [0 0]
+Option "bucket" "string order" ["circle"]
+Option "hider" "int minsamples" [0] "int maxsamples" [64] "float darkfalloff" [0.025] "int incremental" [1] "int adaptall" [0]
+
+# search path examples. uncomment the appropiate one for your OS.
+# example linux search path
+#Option "searchpath" "string rixplugin" ["/scenes/rman/custom/plugins:@"]
+# example windows search path, need to escape backslashes
+#Option "searchpath" "string rixplugin" ["D:\\scenes\\rman\\custom\\plugins:@"]
+Option "searchpath" "string rixplugin" ["D:\\tools\\github\\Earlyworm-Pxr\\plugin\\r22.4\\windows:@"]
+
+Option "trace" "string worldorigin" ["worldoffset"] "float[3] worldoffset" [1.13878965 0.200286493 -0.458441764]
+Option "statistics" "int level" [1] "string xmlfilename" ["fisheye_art.${renderversion}.xml"]
+Integrator "PxrPathTracer" "PxrPathTracer" "int maxPathLength" [10]
+DisplayChannel "color Ci" "string source" ["Ci"]
+DisplayChannel "float a" "string source" ["a"]
+Projection "WillFisheye" "float fieldOfView" [180]
+Transform [ -0.235142112 0.11171443 -0.965519607 -0  1.86264515e-09 0.993372798 0.114937156 -0  -0.971961021 -0.0270265639 0.233583763 -0  0 -0 -0 1 ]
+Display "fisheye_art.${renderversion}.tif" "tiff" "Ci,a" "int asrgba"  [1]
+WorldBegin 
+	AttributeBegin 
+		Pattern "PxrVoronoise" "PxrVoronoise5" "int surfacePosition" [0] "float frequency" [2.52964425] "int octaves" [3] "float gain" [1.75293255] "float lacunarity" [3.235955] "float jitter" [1] "float smoothness" [0] "int turbulent" [0]  
+			
+		Pattern "PxrManifold2D" "PxrManifold2D7" "float angle" [45] "float scaleS" [1] "float scaleT" [1] "float offsetS" [0] "float offsetT" [0] "int invertS" [0] "int invertT" [1] "string primvarS" [""] "string primvarT" [""]
+		Pattern "PxrWorley" "PxrWorley11" "int surfacePosition" [0] "float frequency" [100] "int distancemetric" [1] "float jitter" [0.786516845] "float c1" [0.653932571] "float c2" [0.797752798] "float minkowskiExponent" [12.719101] "int shape" [0] "int clamp" [1] "int invert" [0] "float randomScale" [0] "float randomScaleCenter" [0] 
+			
+		Pattern "PxrManifold2D" "PxrManifold2D3" "float angle" [0] "float scaleS" [10] "float scaleT" [10] "float offsetS" [0] "float offsetT" [0] "int invertS" [0] "int invertT" [1] "string primvarS" [""] "string primvarT" [""]
+		Pattern "PxrWorley" "PxrWorley12" "reference struct manifold" ["PxrManifold2D7:result"] "int surfacePosition" [0] "float frequency" [200] "int distancemetric" [1] "float jitter" [0.842696607] "float c1" [0.800000012] "float c2" [0.865168512] "float minkowskiExponent" [12.719101] "int shape" [0] "int clamp" [1] "int invert" [0] "float randomScale" [0] "float randomScaleCenter" [0] 
+			
+		Pattern "PxrWorley" "PxrWorley3" "reference struct manifold" ["PxrManifold2D3:result"] "int surfacePosition" [0] "float frequency" [10] "int distancemetric" [1] "float jitter" [0.976284564] "float c1" [-0.264822125] "float c2" [0.130434781] "float minkowskiExponent" [6.95373678] "int shape" [0] "int clamp" [1] "int invert" [0] "float randomScale" [0] "float randomScaleCenter" [0] 
+			
+		Pattern "PxrThreshold" "PxrThreshold8" "reference color inputRGB" ["PxrWorley12:resultRGB"] "int channel" [3] "float threshold" [0.592885375] "float transitionWidth" [0.216292128] "int transitionProfile" [1]
+		Pattern "PxrToFloat3" "PxrClamp1_inputRGB2" "reference float inputG" ["PxrWorley3:resultF"] "reference float inputR" ["PxrWorley3:resultF"] "reference float inputB" ["PxrWorley3:resultF"] "float input" [0]
+		Pattern "PxrWorley" "PxrWorley10" "int surfacePosition" [0] "float frequency" [19.762846] "int distancemetric" [3] "float jitter" [0.786516845] "float c1" [0.653932571] "float c2" [0.797752798] "float minkowskiExponent" [1.74911034] "int shape" [0] "int clamp" [1] "int invert" [0] "float randomScale" [0] "float randomScaleCenter" [0] 
+			
+		Pattern "PxrClamp" "PxrClamp6" "reference color inputRGB" ["PxrClamp1_inputRGB2:resultRGB"] "color min" [0 0 0] "color max" [0.573037326 0.573037326 0.573037326] "int modulus" [0]
+		Pattern "PxrBlend" "PxrBlend10" "reference float topA" ["PxrVoronoise5:resultF"] "int operation" [19] "color topRGB" [0.412999988 0.39775002 0.333703965] "color bottomRGB" [1 1 1] "float bottomA" [1] "int clampOutput" [1]
+		Pattern "PxrRemap" "PxrRemap7" "reference color inputRGB" ["PxrClamp6:resultRGB"] "float inputMin" [0] "float inputMax" [1] "int clampInput" [1] "color bias" [0.934693873 0.934693873 0.934693873] "color gain" [0.0530612245 0.0530612245 0.0530612245] "float outputMin" [0] "float outputMax" [1] "int clampOutput" [1]
+		Pattern "PxrThreshold" "PxrThreshold6" "reference color inputRGB" ["PxrWorley10:resultRGB"] "int channel" [3] "float threshold" [0.483146071] "float transitionWidth" [0.193820223] "int transitionProfile" [1]
+		Pattern "PxrRemap" "PxrRemap8" "reference color inputRGB" ["PxrBlend10:resultRGB"] "float inputMin" [0] "float inputMax" [1] "int clampInput" [1] "color bias" [0.897959173 0.897959173 0.897959173] "color gain" [0.934693873 0.934693873 0.934693873] "float outputMin" [0] "float outputMax" [1] "int clampOutput" [1]
+		Pattern "PxrInvert" "PxrInvert1" "reference color inputRGB" ["PxrThreshold6:resultRGB"] "int colorModel" [0] "int invertChannel0" [1] "int invertChannel1" [1] "int invertChannel2" [1]
+		Pattern "PxrBlend" "PxrBlend23" "reference color bottomRGB" ["PxrRemap8:resultRGB"] "reference float topA" ["PxrRemap7:resultR"] "int operation" [26] "color topRGB" [0.180791989 0.272084236 0.972000003] "float bottomA" [1] "int clampOutput" [1]
+		Pattern "PxrThreshold" "PxrThreshold7" "reference color inputRGB" ["PxrWorley11:resultRGB"] "int channel" [3] "float threshold" [0.483146071] "float transitionWidth" [0.193820223] "int transitionProfile" [1]
+		Pattern "PxrBlend" "PxrBlend24" "reference float topA" ["PxrThreshold7:resultR"] "reference float bottomA" ["PxrThreshold8:resultR"] "int operation" [13] "color topRGB" [0.483530283 0.0566439964 0.578000009] "color bottomRGB" [1 1 1] "int clampOutput" [1]
+		Pattern "PxrBlend" "PxrBlend7" "reference color topRGB" ["PxrBlend24:resultRGB"] "reference color bottomRGB" ["PxrBlend23:resultRGB"] "int operation" [22] "float topA" [1] "float bottomA" [1] "int clampOutput" [1]
+		Pattern "PxrBump" "PxrBump1" "reference float inputBump" ["PxrBlend7:resultR"] "float scale" [0.00300000003] "int disable" [0] "string filename" [""] "int firstChannel" [0] "int atlasStyle" [0] "int invertT" [1] "float blur" [0] "int lerp" [1] "int mipBias" [0] "float maxResolution" [0] "normal inputN" [1 1 1] "int reverse" [0] "float adjustAmount" [1] "float surfaceNormalMix" [0]
+		Pattern "PxrBlend" "PxrBlend22" "reference color bottomRGB" ["PxrBlend7:resultRGB"] "reference float topA" ["PxrInvert1:resultR"] "int operation" [18] "color topRGB" [0.0680000037 0.0131920008 0.0260234606] "float bottomA" [1] "int clampOutput" [1]
+		Pattern "PxrHSL" "PxrHSL2" "reference color inputRGB" ["PxrBlend22:resultRGB"] "float hue" [0] "float saturation" [1.29999995] "float luminance" [1]
+		Pattern "PxrLayer" "baseLayer1" "reference normal diffuseBumpNormal" ["PxrBump1:resultN"] "reference color specularEdgeColor" ["PxrHSL2:resultRGB"] "reference color diffuseColor" ["PxrHSL2:resultRGB"] "reference color specularFaceColor" ["PxrHSL2:resultRGB"] "reference normal roughSpecularBumpNormal" ["PxrBump1:resultN"] "reference normal specularBumpNormal" ["PxrBump1:resultN"] "int enableDiffuseAlways" [1] "int enableDiffuse" [1] "float diffuseGain" [1] "float diffuseRoughness" [0.100000001] "color diffuseBackColor" [0.180000007 0.180000007 0.180000007] "float diffuseTransmitGain" [0] "color diffuseTransmitColor" [0.180000007 0.180000007 0.180000007] 
+			"int enableSpecular" [1] "float specularGain" [1] "color specularIor" [1.5 1.5 1.5] "color specularExtinctionCoeff" [0 0 0] "float specularRoughness" [0.600000024] "float specularAnisotropy" [0.800000012] "int enableRoughSpecular" [1] "float roughSpecularGain" [0] "color roughSpecularFaceColor" [1 1 1] 
+			"color roughSpecularEdgeColor" [1 1 1] "color roughSpecularIor" [2.9000001 2.9000001 2.9000001] "color roughSpecularExtinctionCoeff" [0.300000012 0.300000012 0.300000012] "float roughSpecularRoughness" [0.600000024] "float roughSpecularAnisotropy" [0.200000003] "int enableClearcoat" [1] "float clearcoatGain" [1] 
+			"color clearcoatFaceColor" [1 1 1] "color clearcoatEdgeColor" [1 1 1] "color clearcoatIor" [1.5 1.5 1.5] "color clearcoatExtinctionCoeff" [0 0 0] 
+			"float clearcoatRoughness" [0.0500000007] "float clearcoatAnisotropy" [0] "normal clearcoatBumpNormal" [0 0 0] "float clearcoatThickness" [0] "color clearcoatAbsorptionTint" [0 0 0] "int enableIridescence" [0] "float iridescenceFaceGain" [0] "float iridescenceEdgeGain" [0] "color iridescencePrimaryColor" [1 0 0] 
+			"color iridescenceSecondaryColor" [0 0 1] "float iridescenceThickness" [800] "float iridescenceRoughness" [0.200000003] "int enableFuzz" [0] "float fuzzGain" [0] "color fuzzColor" [1 1 1] "float fuzzConeAngle" [8] "normal fuzzBumpNormal" [0 0 0] 
+			"int enableSubsurface" [0] "float subsurfaceGain" [0] "color subsurfaceColor" [0.829999983 0.791000009 0.753000021] "float subsurfaceDmfp" [10] "color subsurfaceDmfpColor" [0.851000011 0.556999981 0.395000011] "float shortSubsurfaceGain" [0] "color shortSubsurfaceColor" [0.899999976 0.899999976 0.899999976] 
+			"float shortSubsurfaceDmfp" [5] "float longSubsurfaceGain" [0] "color longSubsurfaceColor" [0.800000012 0 0] "float longSubsurfaceDmfp" [20] "color subsurfacePostTint" [1 1 1] "float subsurfaceTransmitGain" [0] "int enableSinglescatter" [0] "float singlescatterGain" [0] "color singlescatterColor" [0.829999983 0.791000009 0.753000021] 
+			"float singlescatterMfp" [10] "color singlescatterMfpColor" [0.851000011 0.556999981 0.395000011] "float singlescatterDirectionality" [0] "float singlescatterIor" [1.29999995] "float singlescatterBlur" [0] "float singlescatterDirectGain" [0] "color singlescatterDirectGainTint" [1 1 1] "int enableRR" [0] "float rrRefractionGain" [0] 
+			"float rrReflectionGain" [0] "color rrRefractionColor" [1 1 1] "float rrRoughness" [0.100000001] "float rrIor" [1.5] "int enableGlow" [0] "float glowGain" [0] "color glowColor" [1 1 1] "normal bumpNormal" [0 0 0]
+		Pattern "PxrLayerMixer" "PxrLayerMixer1" "int enableDiffuseAlways" [1] "normal baselayer_bumpNormal" [0 0 0] "int baselayer_enableDiffuse" [1] "reference float baselayer_diffuseGain" ["baseLayer1:pxrMaterialOut_diffuseGain"] "reference color baselayer_diffuseColor" ["baseLayer1:pxrMaterialOut_diffuseColor"] "reference float baselayer_diffuseRoughness" ["baseLayer1:pxrMaterialOut_diffuseRoughness"] "reference normal baselayer_diffuseBumpNormal" ["baseLayer1:pxrMaterialOut_diffuseBumpNormal"] "reference color baselayer_diffuseBackColor" ["baseLayer1:pxrMaterialOut_diffuseBackColor"] "reference float baselayer_diffuseTransmitGain" ["baseLayer1:pxrMaterialOut_diffuseTransmitGain"] "reference color baselayer_diffuseTransmitColor" ["baseLayer1:pxrMaterialOut_diffuseTransmitColor"] "int baselayer_enableSpecular" [1] "reference color baselayer_specularFaceColor" ["baseLayer1:pxrMaterialOut_specularFaceColor"] "reference color baselayer_specularEdgeColor" ["baseLayer1:pxrMaterialOut_specularEdgeColor"] "reference color baselayer_specularIor" ["baseLayer1:pxrMaterialOut_specularIor"] "reference color baselayer_specularExtinctionCoeff" ["baseLayer1:pxrMaterialOut_specularExtinctionCoeff"] "reference float baselayer_specularRoughness" ["baseLayer1:pxrMaterialOut_specularRoughness"] "reference float baselayer_specularAnisotropy" ["baseLayer1:pxrMaterialOut_specularAnisotropy"] "reference normal baselayer_specularBumpNormal" ["baseLayer1:pxrMaterialOut_specularBumpNormal"] "int baselayer_enableRoughSpecular" [1] 
+			"reference color baselayer_roughSpecularFaceColor" ["baseLayer1:pxrMaterialOut_roughSpecularFaceColor"] "reference color baselayer_roughSpecularEdgeColor" ["baseLayer1:pxrMaterialOut_roughSpecularEdgeColor"] "reference color baselayer_roughSpecularIor" ["baseLayer1:pxrMaterialOut_roughSpecularIor"] "reference color baselayer_roughSpecularExtinctionCoeff" ["baseLayer1:pxrMaterialOut_roughSpecularExtinctionCoeff"] "reference float baselayer_roughSpecularRoughness" ["baseLayer1:pxrMaterialOut_roughSpecularRoughness"] "reference float baselayer_roughSpecularAnisotropy" ["baseLayer1:pxrMaterialOut_roughSpecularAnisotropy"] "reference normal baselayer_roughSpecularBumpNormal" ["baseLayer1:pxrMaterialOut_roughSpecularBumpNormal"] "int baselayer_enableClearcoat" [1] "reference color baselayer_clearcoatFaceColor" ["baseLayer1:pxrMaterialOut_clearcoatFaceColor"] "reference color baselayer_clearcoatEdgeColor" ["baseLayer1:pxrMaterialOut_clearcoatEdgeColor"] "reference color baselayer_clearcoatIor" ["baseLayer1:pxrMaterialOut_clearcoatIor"] "reference color baselayer_clearcoatExtinctionCoeff" ["baseLayer1:pxrMaterialOut_clearcoatExtinctionCoeff"] "reference float baselayer_clearcoatRoughness" ["baseLayer1:pxrMaterialOut_clearcoatRoughness"] "reference float baselayer_clearcoatAnisotropy" ["baseLayer1:pxrMaterialOut_clearcoatAnisotropy"] "normal baselayer_clearcoatBumpNormal" [0 0 0] "reference float baselayer_clearcoatThickness" ["baseLayer1:pxrMaterialOut_clearcoatThickness"] "reference color baselayer_clearcoatAbsorptionTint" ["baseLayer1:pxrMaterialOut_clearcoatAbsorptionTint"] "int baselayer_enableIridescence" [0] "float baselayer_iridescenceFaceGain" [0] 
+			"float baselayer_iridescenceEdgeGain" [0] "color baselayer_iridescencePrimaryColor" [0 0 0] "color baselayer_iridescenceSecondaryColor" [0 0 0] "float baselayer_iridescenceThickness" [0] "float baselayer_iridescenceRoughness" [0.200000003] "int baselayer_enableFuzz" [0] "float baselayer_fuzzGain" [0] "color baselayer_fuzzColor" [0 0 0] 
+			"float baselayer_fuzzConeAngle" [0] "normal baselayer_fuzzBumpNormal" [0 0 0] "int baselayer_enableRR" [0] "float baselayer_refractionGain" [0] "color baselayer_refractionColor" [1 1 1] "float baselayer_reflectionGain" [0] "float baselayer_glassRoughness" [0.100000001] "float baselayer_glassIor" [1.5] "int baselayer_enableSubsurface" [0] 
+			"float baselayer_subsurfaceGain" [0] "color baselayer_subsurfaceColor" [0 0 0] "float baselayer_subsurfaceDmfp" [1] "color baselayer_subsurfaceDmfpColor" [1 1 1] "float baselayer_shortSubsurfaceGain" [0] "color baselayer_shortSubsurfaceColor" [0 0 0] 
+			"float baselayer_shortSubsurfaceDmfp" [1] "float baselayer_longSubsurfaceGain" [0] "color baselayer_longSubsurfaceColor" [0 0 0] "float baselayer_longSubsurfaceDmfp" [1] "color baselayer_subsurfacePostTint" [1 1 1] "float baselayer_subsurfaceTransmitGain" [0] "int baselayer_enableSinglescatter" [0] "float baselayer_singlescatterGain" [0] "color baselayer_singlescatterColor" [0 0 0] 
+			"float baselayer_singlescatterMfp" [1] "color baselayer_singlescatterMfpColor" [1 1 1] "float baselayer_singlescatterDirectionality" [0] "float baselayer_singlescatterIor" [0] "float baselayer_singlescatterBlur" [0] "float baselayer_singlescatterDirectGain" [0] "color baselayer_singlescatterDirectGainTint" [1 1 1] "int baselayer_enableGlow" [0] "float baselayer_glowGain" [0] 
+			"color baselayer_glowColor" [0 0 0] "int layer1Enabled" [0] "normal layer1_bumpNormal" [0 0 0] "int layer1_enableDiffuse" [0] "float layer1_diffuseGain" [0] "color layer1_diffuseColor" [0 0 0] "float layer1_diffuseRoughness" [0] 
+			"normal layer1_diffuseBumpNormal" [0 0 0] "color layer1_diffuseBackColor" [0 0 0] "float layer1_diffuseTransmitGain" [0] "color layer1_diffuseTransmitColor" [0 0 0] "int layer1_enableSpecular" [0] "color layer1_specularFaceColor" [0 0 0] 
+			"color layer1_specularEdgeColor" [0 0 0] "color layer1_specularIor" [0 0 0] "color layer1_specularExtinctionCoeff" [0 0 0] "float layer1_specularRoughness" [0.200000003] "float layer1_specularAnisotropy" [0] "normal layer1_specularBumpNormal" [0 0 0] 
+			"int layer1_enableRoughSpecular" [0] "color layer1_roughSpecularFaceColor" [0 0 0] "color layer1_roughSpecularEdgeColor" [0 0 0] "color layer1_roughSpecularIor" [0 0 0] "color layer1_roughSpecularExtinctionCoeff" [0 0 0] 
+			"float layer1_roughSpecularRoughness" [0.600000024] "float layer1_roughSpecularAnisotropy" [0] "normal layer1_roughSpecularBumpNormal" [0 0 0] "int layer1_enableClearcoat" [0] "color layer1_clearcoatFaceColor" [0 0 0] "color layer1_clearcoatEdgeColor" [0 0 0] "color layer1_clearcoatIor" [0 0 0] 
+			"color layer1_clearcoatExtinctionCoeff" [0 0 0] "float layer1_clearcoatRoughness" [0] "float layer1_clearcoatAnisotropy" [0] "normal layer1_clearcoatBumpNormal" [0 0 0] "float layer1_clearcoatThickness" [0] "color layer1_clearcoatAbsorptionTint" [0 0 0] 
+			"int layer1_enableIridescence" [0] "float layer1_iridescenceFaceGain" [0] "float layer1_iridescenceEdgeGain" [0] "color layer1_iridescencePrimaryColor" [0 0 0] "color layer1_iridescenceSecondaryColor" [0 0 0] "float layer1_iridescenceThickness" [0] "float layer1_iridescenceRoughness" [0.200000003] "int layer1_enableFuzz" [0] "float layer1_fuzzGain" [0] 
+			"color layer1_fuzzColor" [0 0 0] "float layer1_fuzzConeAngle" [0] "normal layer1_fuzzBumpNormal" [0 0 0] "int layer1_enableRR" [0] "float layer1_refractionGain" [0] "color layer1_refractionColor" [1 1 1] "float layer1_reflectionGain" [0] 
+			"float layer1_glassRoughness" [0.100000001] "float layer1_glassIor" [1.5] "int layer1_enableSubsurface" [0] "float layer1_subsurfaceGain" [0] "color layer1_subsurfaceColor" [0 0 0] "float layer1_subsurfaceDmfp" [1] "color layer1_subsurfaceDmfpColor" [1 1 1] "float layer1_shortSubsurfaceGain" [0] "color layer1_shortSubsurfaceColor" [0 0 0] 
+			"float layer1_shortSubsurfaceDmfp" [1] "float layer1_longSubsurfaceGain" [0] "color layer1_longSubsurfaceColor" [0 0 0] "float layer1_longSubsurfaceDmfp" [1] "color layer1_subsurfacePostTint" [1 1 1] "float layer1_subsurfaceTransmitGain" [0] "int layer1_enableSinglescatter" [0] "float layer1_singlescatterGain" [0] "color layer1_singlescatterColor" [0 0 0] 
+			"float layer1_singlescatterMfp" [1] "color layer1_singlescatterMfpColor" [1 1 1] "float layer1_singlescatterDirectionality" [0] "float layer1_singlescatterIor" [0] "float layer1_singlescatterBlur" [0] "float layer1_singlescatterDirectGain" [0] "color layer1_singlescatterDirectGainTint" [1 1 1] "int layer1_enableGlow" [0] "float layer1_glowGain" [0] 
+			"color layer1_glowColor" [0 0 0] "float layer1Mask" [1] "int layer2Enabled" [0] "normal layer2_bumpNormal" [0 0 0] "int layer2_enableDiffuse" [0] "float layer2_diffuseGain" [0] "color layer2_diffuseColor" [0 0 0] 
+			"float layer2_diffuseRoughness" [0] "normal layer2_diffuseBumpNormal" [0 0 0] "color layer2_diffuseBackColor" [0 0 0] "float layer2_diffuseTransmitGain" [0] "color layer2_diffuseTransmitColor" [0 0 0] "int layer2_enableSpecular" [0] "color layer2_specularFaceColor" [0 0 0] 
+			"color layer2_specularEdgeColor" [0 0 0] "color layer2_specularIor" [0 0 0] "color layer2_specularExtinctionCoeff" [0 0 0] "float layer2_specularRoughness" [0.200000003] "float layer2_specularAnisotropy" [0] "normal layer2_specularBumpNormal" [0 0 0] 
+			"int layer2_enableRoughSpecular" [0] "color layer2_roughSpecularFaceColor" [0 0 0] "color layer2_roughSpecularEdgeColor" [0 0 0] "color layer2_roughSpecularIor" [0 0 0] "color layer2_roughSpecularExtinctionCoeff" [0 0 0] 
+			"float layer2_roughSpecularRoughness" [0.600000024] "float layer2_roughSpecularAnisotropy" [0] "normal layer2_roughSpecularBumpNormal" [0 0 0] "int layer2_enableClearcoat" [0] "color layer2_clearcoatFaceColor" [0 0 0] "color layer2_clearcoatEdgeColor" [0 0 0] "color layer2_clearcoatIor" [0 0 0] 
+			"color layer2_clearcoatExtinctionCoeff" [0 0 0] "float layer2_clearcoatRoughness" [0] "float layer2_clearcoatAnisotropy" [0] "normal layer2_clearcoatBumpNormal" [0 0 0] "float layer2_clearcoatThickness" [0] "color layer2_clearcoatAbsorptionTint" [0 0 0] 
+			"int layer2_enableIridescence" [0] "float layer2_iridescenceFaceGain" [0] "float layer2_iridescenceEdgeGain" [0] "color layer2_iridescencePrimaryColor" [0 0 0] "color layer2_iridescenceSecondaryColor" [0 0 0] "float layer2_iridescenceThickness" [0] "float layer2_iridescenceRoughness" [0.200000003] "int layer2_enableFuzz" [0] "float layer2_fuzzGain" [0] 
+			"color layer2_fuzzColor" [0 0 0] "float layer2_fuzzConeAngle" [0] "normal layer2_fuzzBumpNormal" [0 0 0] "int layer2_enableRR" [0] "float layer2_refractionGain" [0] "color layer2_refractionColor" [1 1 1] "float layer2_reflectionGain" [0] 
+			"float layer2_glassRoughness" [0.100000001] "float layer2_glassIor" [1.5] "int layer2_enableSubsurface" [0] "float layer2_subsurfaceGain" [0] "color layer2_subsurfaceColor" [0 0 0] "float layer2_subsurfaceDmfp" [1] "color layer2_subsurfaceDmfpColor" [1 1 1] "float layer2_shortSubsurfaceGain" [0] "color layer2_shortSubsurfaceColor" [0 0 0] 
+			"float layer2_shortSubsurfaceDmfp" [1] "float layer2_longSubsurfaceGain" [0] "color layer2_longSubsurfaceColor" [0 0 0] "float layer2_longSubsurfaceDmfp" [1] "color layer2_subsurfacePostTint" [1 1 1] "float layer2_subsurfaceTransmitGain" [0] "int layer2_enableSinglescatter" [0] "float layer2_singlescatterGain" [0] "color layer2_singlescatterColor" [0 0 0] 
+			"float layer2_singlescatterMfp" [1] "color layer2_singlescatterMfpColor" [1 1 1] "float layer2_singlescatterDirectionality" [0] "float layer2_singlescatterIor" [0] "float layer2_singlescatterBlur" [0] "float layer2_singlescatterDirectGain" [0] "color layer2_singlescatterDirectGainTint" [1 1 1] "int layer2_enableGlow" [0] "float layer2_glowGain" [0] 
+			"color layer2_glowColor" [0 0 0] "float layer2Mask" [1] "int layer3Enabled" [0] "normal layer3_bumpNormal" [0 0 0] "int layer3_enableDiffuse" [0] "float layer3_diffuseGain" [0] "color layer3_diffuseColor" [0 0 0] 
+			"float layer3_diffuseRoughness" [0] "normal layer3_diffuseBumpNormal" [0 0 0] "color layer3_diffuseBackColor" [0 0 0] "float layer3_diffuseTransmitGain" [0] "color layer3_diffuseTransmitColor" [0 0 0] "int layer3_enableSpecular" [0] "color layer3_specularFaceColor" [0 0 0] 
+			"color layer3_specularEdgeColor" [0 0 0] "color layer3_specularIor" [0 0 0] "color layer3_specularExtinctionCoeff" [0 0 0] "float layer3_specularRoughness" [0.200000003] "float layer3_specularAnisotropy" [0] "normal layer3_specularBumpNormal" [0 0 0] 
+			"int layer3_enableRoughSpecular" [0] "color layer3_roughSpecularFaceColor" [0 0 0] "color layer3_roughSpecularEdgeColor" [0 0 0] "color layer3_roughSpecularIor" [0 0 0] "color layer3_roughSpecularExtinctionCoeff" [0 0 0] 
+			"float layer3_roughSpecularRoughness" [0.600000024] "float layer3_roughSpecularAnisotropy" [0] "normal layer3_roughSpecularBumpNormal" [0 0 0] "int layer3_enableClearcoat" [0] "color layer3_clearcoatFaceColor" [0 0 0] "color layer3_clearcoatEdgeColor" [0 0 0] "color layer3_clearcoatIor" [0 0 0] 
+			"color layer3_clearcoatExtinctionCoeff" [0 0 0] "float layer3_clearcoatRoughness" [0] "float layer3_clearcoatAnisotropy" [0] "normal layer3_clearcoatBumpNormal" [0 0 0] "float layer3_clearcoatThickness" [0] "color layer3_clearcoatAbsorptionTint" [0 0 0] 
+			"int layer3_enableIridescence" [0] "float layer3_iridescenceFaceGain" [0] "float layer3_iridescenceEdgeGain" [0] "color layer3_iridescencePrimaryColor" [0 0 0] "color layer3_iridescenceSecondaryColor" [0 0 0] "float layer3_iridescenceThickness" [0] "float layer3_iridescenceRoughness" [0.200000003] "int layer3_enableFuzz" [0] "float layer3_fuzzGain" [0] 
+			"color layer3_fuzzColor" [0 0 0] "float layer3_fuzzConeAngle" [0] "normal layer3_fuzzBumpNormal" [0 0 0] "int layer3_enableRR" [0] "float layer3_refractionGain" [0] "color layer3_refractionColor" [1 1 1] "float layer3_reflectionGain" [0] 
+			"float layer3_glassRoughness" [0.100000001] "float layer3_glassIor" [1.5] "int layer3_enableSubsurface" [0] "float layer3_subsurfaceGain" [0] "color layer3_subsurfaceColor" [0 0 0] "float layer3_subsurfaceDmfp" [1] "color layer3_subsurfaceDmfpColor" [1 1 1] "float layer3_shortSubsurfaceGain" [0] "color layer3_shortSubsurfaceColor" [0 0 0] 
+			"float layer3_shortSubsurfaceDmfp" [1] "float layer3_longSubsurfaceGain" [0] "color layer3_longSubsurfaceColor" [0 0 0] "float layer3_longSubsurfaceDmfp" [1] "color layer3_subsurfacePostTint" [1 1 1] "float layer3_subsurfaceTransmitGain" [0] "int layer3_enableSinglescatter" [0] "float layer3_singlescatterGain" [0] "color layer3_singlescatterColor" [0 0 0] 
+			"float layer3_singlescatterMfp" [1] "color layer3_singlescatterMfpColor" [1 1 1] "float layer3_singlescatterDirectionality" [0] "float layer3_singlescatterIor" [0] "float layer3_singlescatterBlur" [0] "float layer3_singlescatterDirectGain" [0] "color layer3_singlescatterDirectGainTint" [1 1 1] "int layer3_enableGlow" [0] "float layer3_glowGain" [0] 
+			"color layer3_glowColor" [0 0 0] "float layer3Mask" [1] "int layer4Enabled" [0] "normal layer4_bumpNormal" [0 0 0] "int layer4_enableDiffuse" [0] "float layer4_diffuseGain" [0] "color layer4_diffuseColor" [0 0 0] 
+			"float layer4_diffuseRoughness" [0] "normal layer4_diffuseBumpNormal" [0 0 0] "color layer4_diffuseBackColor" [0 0 0] "float layer4_diffuseTransmitGain" [0] "color layer4_diffuseTransmitColor" [0 0 0] "int layer4_enableSpecular" [0] "color layer4_specularFaceColor" [0 0 0] 
+			"color layer4_specularEdgeColor" [0 0 0] "color layer4_specularIor" [0 0 0] "color layer4_specularExtinctionCoeff" [0 0 0] "float layer4_specularRoughness" [0.200000003] "float layer4_specularAnisotropy" [0] "normal layer4_specularBumpNormal" [0 0 0] 
+			"int layer4_enableRoughSpecular" [0] "color layer4_roughSpecularFaceColor" [0 0 0] "color layer4_roughSpecularEdgeColor" [0 0 0] "color layer4_roughSpecularIor" [0 0 0] "color layer4_roughSpecularExtinctionCoeff" [0 0 0] 
+			"float layer4_roughSpecularRoughness" [0.600000024] "float layer4_roughSpecularAnisotropy" [0] "normal layer4_roughSpecularBumpNormal" [0 0 0] "int layer4_enableClearcoat" [0] "color layer4_clearcoatFaceColor" [0 0 0] "color layer4_clearcoatEdgeColor" [0 0 0] "color layer4_clearcoatIor" [0 0 0] 
+			"color layer4_clearcoatExtinctionCoeff" [0 0 0] "float layer4_clearcoatRoughness" [0] "float layer4_clearcoatAnisotropy" [0] "normal layer4_clearcoatBumpNormal" [0 0 0] "float layer4_clearcoatThickness" [0] "color layer4_clearcoatAbsorptionTint" [0 0 0] 
+			"int layer4_enableIridescence" [0] "float layer4_iridescenceFaceGain" [0] "float layer4_iridescenceEdgeGain" [0] "color layer4_iridescencePrimaryColor" [0 0 0] "color layer4_iridescenceSecondaryColor" [0 0 0] "float layer4_iridescenceThickness" [0] "float layer4_iridescenceRoughness" [0.200000003] "int layer4_enableFuzz" [0] "float layer4_fuzzGain" [0] 
+			"color layer4_fuzzColor" [0 0 0] "float layer4_fuzzConeAngle" [0] "normal layer4_fuzzBumpNormal" [0 0 0] "int layer4_enableRR" [0] "float layer4_refractionGain" [0] "color layer4_refractionColor" [1 1 1] "float layer4_reflectionGain" [0] 
+			"float layer4_glassRoughness" [0.100000001] "float layer4_glassIor" [1.5] "int layer4_enableSubsurface" [0] "float layer4_subsurfaceGain" [0] "color layer4_subsurfaceColor" [0 0 0] "float layer4_subsurfaceDmfp" [1] "color layer4_subsurfaceDmfpColor" [1 1 1] "float layer4_shortSubsurfaceGain" [0] "color layer4_shortSubsurfaceColor" [0 0 0] 
+			"float layer4_shortSubsurfaceDmfp" [1] "float layer4_longSubsurfaceGain" [0] "color layer4_longSubsurfaceColor" [0 0 0] "float layer4_longSubsurfaceDmfp" [1] "color layer4_subsurfacePostTint" [1 1 1] "float layer4_subsurfaceTransmitGain" [0] "int layer4_enableSinglescatter" [0] "float layer4_singlescatterGain" [0] "color layer4_singlescatterColor" [0 0 0] 
+			"float layer4_singlescatterMfp" [1] "color layer4_singlescatterMfpColor" [1 1 1] "float layer4_singlescatterDirectionality" [0] "float layer4_singlescatterIor" [0] "float layer4_singlescatterBlur" [0] "float layer4_singlescatterDirectGain" [0] "color layer4_singlescatterDirectGainTint" [1 1 1] "int layer4_enableGlow" [0] "float layer4_glowGain" [0] 
+			"color layer4_glowColor" [0 0 0] "float layer4Mask" [1]
+		Bxdf "PxrLayerSurface" "terrazzo_Shader" "reference float diffuseGain" ["PxrLayerMixer1:pxrMaterialOut_diffuseGain"] "reference color diffuseColor" ["PxrLayerMixer1:pxrMaterialOut_diffuseColor"] "reference float diffuseRoughness" ["PxrLayerMixer1:pxrMaterialOut_diffuseRoughness"] "float diffuseExponent" [1] "reference normal diffuseBumpNormal" ["PxrLayerMixer1:pxrMaterialOut_diffuseBumpNormal"] "int diffuseDoubleSided" [0] "int diffuseBackUseDiffuseColor" [1] "reference color diffuseBackColor" ["PxrLayerMixer1:pxrMaterialOut_diffuseBackColor"] "reference float diffuseTransmitGain" ["PxrLayerMixer1:pxrMaterialOut_diffuseTransmitGain"] "reference color diffuseTransmitColor" ["PxrLayerMixer1:pxrMaterialOut_diffuseTransmitColor"] "int specularFresnelMode" [1] "reference color specularFaceColor" ["PxrLayerMixer1:pxrMaterialOut_specularFaceColor"] "reference color specularEdgeColor" ["PxrLayerMixer1:pxrMaterialOut_specularEdgeColor"] "float specularFresnelShape" [5] "reference color specularIor" ["PxrLayerMixer1:pxrMaterialOut_specularIor"] "reference color specularExtinctionCoeff" ["PxrLayerMixer1:pxrMaterialOut_specularExtinctionCoeff"] "reference float specularRoughness" ["PxrLayerMixer1:pxrMaterialOut_specularRoughness"] "int specularModelType" [1] "reference float specularAnisotropy" ["PxrLayerMixer1:pxrMaterialOut_specularAnisotropy"] "vector specularAnisotropyDirection" [0 0 0] 
+			"reference normal specularBumpNormal" ["PxrLayerMixer1:pxrMaterialOut_specularBumpNormal"] "int specularDoubleSided" [0] "int roughSpecularFresnelMode" [1] "reference color roughSpecularFaceColor" ["PxrLayerMixer1:pxrMaterialOut_roughSpecularFaceColor"] "reference color roughSpecularEdgeColor" ["PxrLayerMixer1:pxrMaterialOut_roughSpecularEdgeColor"] "float roughSpecularFresnelShape" [5] "reference color roughSpecularIor" ["PxrLayerMixer1:pxrMaterialOut_roughSpecularIor"] "reference color roughSpecularExtinctionCoeff" ["PxrLayerMixer1:pxrMaterialOut_roughSpecularExtinctionCoeff"] "reference float roughSpecularRoughness" ["PxrLayerMixer1:pxrMaterialOut_roughSpecularRoughness"] "int roughSpecularModelType" [1] "reference float roughSpecularAnisotropy" ["PxrLayerMixer1:pxrMaterialOut_roughSpecularAnisotropy"] "vector roughSpecularAnisotropyDirection" [0 0 0] "reference normal roughSpecularBumpNormal" ["PxrLayerMixer1:pxrMaterialOut_roughSpecularBumpNormal"] "int roughSpecularDoubleSided" [0] "int clearcoatFresnelMode" [2] "reference color clearcoatFaceColor" ["PxrLayerMixer1:pxrMaterialOut_clearcoatFaceColor"] "reference color clearcoatEdgeColor" ["PxrLayerMixer1:pxrMaterialOut_clearcoatEdgeColor"] "float clearcoatFresnelShape" [5] 
+			"reference color clearcoatIor" ["PxrLayerMixer1:pxrMaterialOut_clearcoatIor"] "reference color clearcoatExtinctionCoeff" ["PxrLayerMixer1:pxrMaterialOut_clearcoatExtinctionCoeff"] "reference float clearcoatRoughness" ["PxrLayerMixer1:pxrMaterialOut_clearcoatRoughness"] "int clearcoatModelType" [1] "reference float clearcoatAnisotropy" ["PxrLayerMixer1:pxrMaterialOut_clearcoatAnisotropy"] "vector clearcoatAnisotropyDirection" [0 0 0] "normal clearcoatBumpNormal" [0 0 0] "reference float clearcoatThickness" ["PxrLayerMixer1:pxrMaterialOut_clearcoatThickness"] "reference color clearcoatAbsorptionTint" ["PxrLayerMixer1:pxrMaterialOut_clearcoatAbsorptionTint"] "int clearcoatDoubleSided" [0] "float specularEnergyCompensation" [1] "float clearcoatEnergyCompensation" [1] 
+			"float iridescenceFaceGain" [0] "float iridescenceEdgeGain" [0] "float iridescenceFresnelShape" [5] "int iridescenceMode" [0] "color iridescencePrimaryColor" [1 0 0] "color iridescenceSecondaryColor" [0 0 1] "float iridescenceRoughness" [0.200000003] "float iridescenceCurve" [1] "float iridescenceScale" [1] 
+			"int iridescenceFlip" [0] "float iridescenceThickness" [800] "int iridescenceDoubleSided" [0] "float fuzzGain" [0] "color fuzzColor" [1 1 1] "float fuzzConeAngle" [8] "normal fuzzBumpNormal" [0 0 0] "int fuzzDoubleSided" [0] "int subsurfaceType" [0] "float subsurfaceGain" [0] 
+			"color subsurfaceColor" [0.829999983 0.791000009 0.753000021] "float subsurfaceDmfp" [10] "color subsurfaceDmfpColor" [0.851000011 0.556999981 0.395000011] "float shortSubsurfaceGain" [0] "color shortSubsurfaceColor" [0.899999976 0.899999976 0.899999976] "float shortSubsurfaceDmfp" [5] 
+			"float longSubsurfaceGain" [0] "color longSubsurfaceColor" [0.800000012 0 0] "float longSubsurfaceDmfp" [20] "float subsurfaceDirectionality" [0] "float subsurfaceBleed" [0] "float subsurfaceDiffuseBlend" [0] "int subsurfaceResolveSelfIntersections" [0] "float subsurfaceIor" [1.39999998] "color subsurfacePostTint" [1 1 1] 
+			"float subsurfaceDiffuseSwitch" [1] "int subsurfaceDoubleSided" [0] "float subsurfaceTransmitGain" [0] "int considerBackside" [1] "int continuationRayMode" [0] "int maxContinuationHits" [2] "float followTopology" [0] "string subsurfaceSubset" [""] "float singlescatterGain" [0] "color singlescatterColor" [0.829999983 0.791000009 0.753000021] "float singlescatterMfp" [10] "color singlescatterMfpColor" [0.851000011 0.556999981 0.395000011] 
+			"float singlescatterDirectionality" [0] "float singlescatterIor" [1.29999995] "float singlescatterBlur" [0] "float singlescatterDirectGain" [0] "color singlescatterDirectGainTint" [1 1 1] "int singlescatterDoubleSided" [0] "int singlescatterConsiderBackside" [1] "int singlescatterContinuationRayMode" [0] "int singlescatterMaxContinuationHits" [2] "int singlescatterDirectGainMode" [0] "string singlescatterSubset" [""] "color irradianceTint" [1 1 1] 
+			"float irradianceRoughness" [0] "float unitLength" [0.100000001] "float refractionGain" [0] "float reflectionGain" [0] "color refractionColor" [1 1 1] "float glassRoughness" [0.100000001] "float glassIor" [1.5] "int mwWalkable" [0] "float mwIor" [-1] "int thinGlass" [0] "int ignoreFresnel" [0] "int ignoreAccumOpacity" [0] 
+			"color ssAlbedo" [0 0 0] "color extinction" [0 0 0] "float g" [0] "int multiScatter" [0] "int enableOverlappingVolumes" [0] "float glowGain" [0] "color glowColor" [1 1 1] 
+			"normal bumpNormal" [0 0 0] "color shadowColor" [0 0 0] "int shadowMode" [0] "float presence" [1] "int presenceCached" [1] "int mwStartable" [0] "float roughnessMollificationClamp" [32]  
+			"int[1] utilityPattern" [0] "string __materialid" ["terrazzo_ShaderSG"]
+	AttributeEnd 
+	AttributeBegin 
+		Bxdf "PxrSurface" "blue_metallic_paint2" "float diffuseGain" [0] "color diffuseColor" [0.0273208916 0.064803265 0.187820777] "float diffuseRoughness" [0] "float diffuseExponent" [1] "normal diffuseBumpNormal" [0 0 0] "int diffuseDoubleSided" [0] "int diffuseBackUseDiffuseColor" [1] "color diffuseBackColor" [0.180000007 0.180000007 0.180000007] 
+			"float diffuseTransmitGain" [0] "color diffuseTransmitColor" [0.180000007 0.180000007 0.180000007] "int specularFresnelMode" [0] "color specularFaceColor" [0.0273208916 0.064803265 0.187820777] "color specularEdgeColor" [0.0273208916 0.064803265 0.187820777] "float specularFresnelShape" [5] "color specularIor" [1.5 1.5 1.5] 
+			"color specularExtinctionCoeff" [0 0 0] "float specularRoughness" [0.296000004] "int specularModelType" [1] "float specularAnisotropy" [0] "vector specularAnisotropyDirection" [0 0 0] "normal specularBumpNormal" [0 0 0] "int specularDoubleSided" [0] 
+			"int roughSpecularFresnelMode" [0] "color roughSpecularFaceColor" [0 0 0] "color roughSpecularEdgeColor" [0 0 0] "float roughSpecularFresnelShape" [5] "color roughSpecularIor" [1.5 1.5 1.5] "color roughSpecularExtinctionCoeff" [0 0 0] 
+			"float roughSpecularRoughness" [0.600000024] "int roughSpecularModelType" [0] "float roughSpecularAnisotropy" [0] "vector roughSpecularAnisotropyDirection" [0 0 0] "normal roughSpecularBumpNormal" [0 0 0] "int roughSpecularDoubleSided" [0] "int clearcoatFresnelMode" [0] "color clearcoatFaceColor" [0.0199999996 0.0199999996 0.0199999996] 
+			"color clearcoatEdgeColor" [0.25 0.25 0.25] "float clearcoatFresnelShape" [5] "color clearcoatIor" [1.5 1.5 1.5] "color clearcoatExtinctionCoeff" [0 0 0] "float clearcoatThickness" [0] "color clearcoatAbsorptionTint" [0 0 0] 
+			"float clearcoatRoughness" [0.0595140643] "int clearcoatModelType" [1] "float clearcoatAnisotropy" [0] "vector clearcoatAnisotropyDirection" [0 0 0] "normal clearcoatBumpNormal" [0 0 0] "int clearcoatDoubleSided" [0] "float specularEnergyCompensation" [0] "float clearcoatEnergyCompensation" [0] "float iridescenceFaceGain" [0] 
+			"float iridescenceEdgeGain" [0] "float iridescenceFresnelShape" [5] "int iridescenceMode" [0] "color iridescencePrimaryColor" [1 0 0] "color iridescenceSecondaryColor" [0 0 1] "float iridescenceRoughness" [0.200000003] "float iridescenceAnisotropy" [0] "vector iridescenceAnisotropyDirection" [0 0 0] 
+			"normal iridescenceBumpNormal" [0 0 0] "float iridescenceCurve" [1] "float iridescenceScale" [1] "int iridescenceFlip" [0] "float iridescenceThickness" [800] "int iridescenceDoubleSided" [0] "float fuzzGain" [0] "color fuzzColor" [0 0 0] "float fuzzConeAngle" [8] 
+			"normal fuzzBumpNormal" [0 0 0] "int fuzzDoubleSided" [0] "int subsurfaceType" [0] "float subsurfaceGain" [0] "color subsurfaceColor" [0.829999983 0.791000009 0.753000021] "float subsurfaceDmfp" [10] "color subsurfaceDmfpColor" [0.851000011 0.556999981 0.395000011] 
+			"float shortSubsurfaceGain" [0] "color shortSubsurfaceColor" [0.899999976 0.899999976 0.899999976] "float shortSubsurfaceDmfp" [5] "float longSubsurfaceGain" [0] "color longSubsurfaceColor" [0.800000012 0 0] "float longSubsurfaceDmfp" [20] "float subsurfaceDirectionality" [0] "float subsurfaceBleed" [0] 
+			"float subsurfaceDiffuseBlend" [0] "int subsurfaceResolveSelfIntersections" [0] "float subsurfaceIor" [1.39999998] "color subsurfacePostTint" [1 1 1] "float subsurfaceDiffuseSwitch" [1] "int subsurfaceDoubleSided" [0] "float subsurfaceTransmitGain" [0] "int considerBackside" [1] "int continuationRayMode" [0] "int maxContinuationHits" [2] "float followTopology" [0] "string subsurfaceSubset" [""] "float singlescatterGain" [0] 
+			"color singlescatterColor" [0.829999983 0.791000009 0.753000021] "float singlescatterMfp" [10] "color singlescatterMfpColor" [0.851000011 0.556999981 0.395000011] "float singlescatterDirectionality" [0] "float singlescatterIor" [1.29999995] "float singlescatterBlur" [0] "float singlescatterDirectGain" [0] "color singlescatterDirectGainTint" [1 1 1] 
+			"int singlescatterDoubleSided" [0] "int singlescatterConsiderBackside" [1] "int singlescatterContinuationRayMode" [0] "int singlescatterMaxContinuationHits" [2] "int singlescatterDirectGainMode" [0] "string singlescatterSubset" [""] "color irradianceTint" [1 1 1] "float irradianceRoughness" [0] "float unitLength" [0.100000001] "float refractionGain" [0] "float reflectionGain" [0] "color refractionColor" [1 1 1] 
+			"float glassRoughness" [0.100000001] "float glassAnisotropy" [0] "vector glassAnisotropyDirection" [0 0 0] "normal glassBumpNormal" [0 0 0] "float glassIor" [1.5] "int mwWalkable" [0] "float mwIor" [-1] "int thinGlass" [0] "int ignoreFresnel" [0] "int ignoreAccumOpacity" [0] 
+			"int blocksVolumes" [0] "color ssAlbedo" [0 0 0] "color extinction" [0 0 0] "float g" [0] "int multiScatter" [0] "int enableOverlappingVolumes" [0] "float glowGain" [0] "color glowColor" [1 1 1] 
+			"normal bumpNormal" [0 0 0] "color shadowColor" [0 0 0] "int shadowMode" [0] "float presence" [1] "int presenceCached" [1] "int mwStartable" [0] "float roughnessMollificationClamp" [32]  
+			"int[1] utilityPattern" [0] "string __materialid" ["blue_metallic_paint2_SG"]
+	AttributeEnd 
+	AttributeBegin 
+		Bxdf "PxrSurface" "gold_paint1" "float diffuseGain" [0.49000001] "color diffuseColor" [0.246201321 0.144128472 0.0528606474] "float diffuseRoughness" [0] "float diffuseExponent" [1] "normal diffuseBumpNormal" [0 0 0] "int diffuseDoubleSided" [0] "int diffuseBackUseDiffuseColor" [1] "color diffuseBackColor" [0.180000007 0.180000007 0.180000007] 
+			"float diffuseTransmitGain" [0] "color diffuseTransmitColor" [0.180000007 0.180000007 0.180000007] "int specularFresnelMode" [0] "color specularFaceColor" [0.160842672 0.108785518 0.0622389317] "color specularEdgeColor" [0.572029769 0.545480609 0.521741867] "float specularFresnelShape" [5] "color specularIor" [1.5 1.5 1.5] 
+			"color specularExtinctionCoeff" [0 0 0] "float specularRoughness" [0.5] "int specularModelType" [1] "float specularAnisotropy" [0] "vector specularAnisotropyDirection" [0 0 0] "normal specularBumpNormal" [0 0 0] "int specularDoubleSided" [0] 
+			"int roughSpecularFresnelMode" [0] "color roughSpecularFaceColor" [0 0 0] "color roughSpecularEdgeColor" [0 0 0] "float roughSpecularFresnelShape" [5] "color roughSpecularIor" [1.5 1.5 1.5] "color roughSpecularExtinctionCoeff" [0 0 0] 
+			"float roughSpecularRoughness" [0.600000024] "int roughSpecularModelType" [0] "float roughSpecularAnisotropy" [0] "vector roughSpecularAnisotropyDirection" [0 0 0] "normal roughSpecularBumpNormal" [0 0 0] "int roughSpecularDoubleSided" [0] "int clearcoatFresnelMode" [0] "color clearcoatFaceColor" [0.0199999996 0.0199999996 0.0199999996] 
+			"color clearcoatEdgeColor" [0.25 0.25 0.25] "float clearcoatFresnelShape" [5] "color clearcoatIor" [1.5 1.5 1.5] "color clearcoatExtinctionCoeff" [0 0 0] "float clearcoatThickness" [0] "color clearcoatAbsorptionTint" [0 0 0] 
+			"float clearcoatRoughness" [0.253614664] "int clearcoatModelType" [1] "float clearcoatAnisotropy" [0] "vector clearcoatAnisotropyDirection" [0 0 0] "normal clearcoatBumpNormal" [0 0 0] "int clearcoatDoubleSided" [0] "float specularEnergyCompensation" [0] "float clearcoatEnergyCompensation" [0] "float iridescenceFaceGain" [0] 
+			"float iridescenceEdgeGain" [0] "float iridescenceFresnelShape" [5] "int iridescenceMode" [0] "color iridescencePrimaryColor" [1 0 0] "color iridescenceSecondaryColor" [0 0 1] "float iridescenceRoughness" [0.200000003] "float iridescenceAnisotropy" [0] "vector iridescenceAnisotropyDirection" [0 0 0] 
+			"normal iridescenceBumpNormal" [0 0 0] "float iridescenceCurve" [1] "float iridescenceScale" [1] "int iridescenceFlip" [0] "float iridescenceThickness" [800] "int iridescenceDoubleSided" [0] "float fuzzGain" [0] "color fuzzColor" [0 0 0] "float fuzzConeAngle" [8] 
+			"normal fuzzBumpNormal" [0 0 0] "int fuzzDoubleSided" [0] "int subsurfaceType" [0] "float subsurfaceGain" [0] "color subsurfaceColor" [0.829999983 0.791000009 0.753000021] "float subsurfaceDmfp" [10] "color subsurfaceDmfpColor" [0.851000011 0.556999981 0.395000011] 
+			"float shortSubsurfaceGain" [0] "color shortSubsurfaceColor" [0.899999976 0.899999976 0.899999976] "float shortSubsurfaceDmfp" [5] "float longSubsurfaceGain" [0] "color longSubsurfaceColor" [0.800000012 0 0] "float longSubsurfaceDmfp" [20] "float subsurfaceDirectionality" [0] "float subsurfaceBleed" [0] 
+			"float subsurfaceDiffuseBlend" [0] "int subsurfaceResolveSelfIntersections" [0] "float subsurfaceIor" [1.39999998] "color subsurfacePostTint" [1 1 1] "float subsurfaceDiffuseSwitch" [1] "int subsurfaceDoubleSided" [0] "float subsurfaceTransmitGain" [0] "int considerBackside" [1] "int continuationRayMode" [0] "int maxContinuationHits" [2] "float followTopology" [0] "string subsurfaceSubset" [""] "float singlescatterGain" [0] 
+			"color singlescatterColor" [0.829999983 0.791000009 0.753000021] "float singlescatterMfp" [10] "color singlescatterMfpColor" [0.851000011 0.556999981 0.395000011] "float singlescatterDirectionality" [0] "float singlescatterIor" [1.29999995] "float singlescatterBlur" [0] "float singlescatterDirectGain" [0] "color singlescatterDirectGainTint" [1 1 1] 
+			"int singlescatterDoubleSided" [0] "int singlescatterConsiderBackside" [1] "int singlescatterContinuationRayMode" [0] "int singlescatterMaxContinuationHits" [2] "int singlescatterDirectGainMode" [0] "string singlescatterSubset" [""] "color irradianceTint" [1 1 1] "float irradianceRoughness" [0] "float unitLength" [0.100000001] "float refractionGain" [0] "float reflectionGain" [0] "color refractionColor" [1 1 1] 
+			"float glassRoughness" [0.100000001] "float glassAnisotropy" [0] "vector glassAnisotropyDirection" [0 0 0] "normal glassBumpNormal" [0 0 0] "float glassIor" [1.5] "int mwWalkable" [0] "float mwIor" [-1] "int thinGlass" [0] "int ignoreFresnel" [0] "int ignoreAccumOpacity" [0] 
+			"int blocksVolumes" [0] "color ssAlbedo" [0 0 0] "color extinction" [0 0 0] "float g" [0] "int multiScatter" [0] "int enableOverlappingVolumes" [0] "float glowGain" [0] "color glowColor" [1 1 1] 
+			"normal bumpNormal" [0 0 0] "color shadowColor" [0 0 0] "int shadowMode" [0] "float presence" [1] "int presenceCached" [1] "int mwStartable" [0] "float roughnessMollificationClamp" [32]  
+			"int[1] utilityPattern" [0] "string __materialid" ["gold_paint_SG1"]
+	AttributeEnd 
+	AttributeBegin 
+		Pattern "PxrVoronoise" "colorVariance1" "int surfacePosition" [0] "float frequency" [1] "int octaves" [5] "float gain" [2] "float lacunarity" [6] "float jitter" [0.876404524] "float smoothness" [0.80898875] "int turbulent" [0]  
+			
+		Pattern "PxrFacingRatio" "carPaint_ColorShift2" "int use" [0] "vector direction" [0 1 0] "string coordSys" [""] "int faceForward" [1] "int clamp" [1] "int invert" [0] "int mode" [0] "float gamma" [0.100000001] "float ior" [1.5] "normal bumpNormal" [1 1 1]
+		Pattern "PxrBlend" "carPaint_Color4" "reference float topA" ["colorVariance1:resultF"] "int operation" [19] "color topRGB" [0.247191012 0.247191012 0.247191012] "color bottomRGB" [0.078651689 0.078651689 0.078651689] "float bottomA" [1] "int clampOutput" [1]
+		Pattern "PxrFacingRatio" "carPaint_ColorShift3" "int use" [0] "vector direction" [0 1 0] "string coordSys" [""] "int faceForward" [1] "int clamp" [1] "int invert" [0] "int mode" [0] "float gamma" [0.200000003] "float ior" [1.5] "normal bumpNormal" [1 1 1]
+		Pattern "PxrBlend" "carPaint_Color3" "reference float topA" ["carPaint_ColorShift2:resultF"] "reference color topRGB" ["carPaint_Color4:resultRGB"] "int operation" [19] "color bottomRGB" [0.00999999978 0.00999999978 0.00999999978] "float bottomA" [1] "int clampOutput" [1]
+		Pattern "PxrToFloat3" "PxrClamp1_inputRGB" "reference float inputG" ["carPaint_ColorShift3:resultF"] "reference float inputR" ["carPaint_ColorShift3:resultF"] "reference float inputB" ["carPaint_ColorShift3:resultF"] "float input" [0]
+		Pattern "PxrRemap" "PxrRemap4" "reference color inputRGB" ["carPaint_Color3:resultRGB"] "float inputMin" [0] "float inputMax" [1] "int clampInput" [1] "color bias" [0.5 0.5 0.5] "color gain" [0.685393274 0.685393274 0.685393274] "float outputMin" [0.100000001] "float outputMax" [0.600000024] "int clampOutput" [1]
+		Pattern "PxrClamp" "PxrClamp2" "reference color inputRGB" ["PxrClamp1_inputRGB:resultRGB"] "color min" [0 0 0] "color max" [0.314606756 0.314606756 0.314606756] "int modulus" [0]
+		Pattern "PxrRemap" "PxrRemap3" "reference color inputRGB" ["colorVariance1:resultRGB"] "float inputMin" [0] "float inputMax" [1] "int clampInput" [1] "color bias" [0.5 0.5 0.5] "color gain" [0.5 0.5 0.5] "float outputMin" [0] "float outputMax" [1] "int clampOutput" [1]
+		Pattern "PxrToFloat" "PxrToFloat1" "reference color input" ["PxrClamp2:resultRGB"] "int mode" [3]
+		Pattern "PxrFlakes" "paintFlakes1" "reference float flakeAmount" ["PxrToFloat1:resultF"] "normal inputNormal" [0 0 0] "float flakeFreq" [57.2999992] "float density" [0.5] "float size" [0.600000024] "int octaves" [3] "float jitter" [0.879999995] "int validateNormals" [0]
+		Pattern "PxrFlakes" "paintFlakes2" "reference float flakeAmount" ["PxrToFloat1:resultF"] "normal inputNormal" [0 0 0] "float flakeFreq" [90] "float density" [0.600000024] "float size" [0.899999976] "int octaves" [3] "float jitter" [0.730337083] "int validateNormals" [0]
+		Bxdf "PxrSurface" "Car_Paint_Metallic_Shader" "reference normal specularBumpNormal" ["paintFlakes1:resultN"] "reference color specularEdgeColor" ["colorVariance1:resultRGB"] "reference normal roughSpecularBumpNormal" ["paintFlakes2:resultN"] "reference color diffuseColor" ["carPaint_Color3:resultRGB"] "reference color roughSpecularEdgeColor" ["PxrRemap4:resultRGB"] "reference color clearcoatEdgeColor" ["PxrRemap3:resultRGB"] "float diffuseGain" [0.300000012] "float diffuseRoughness" [0] "float diffuseExponent" [1] "normal diffuseBumpNormal" [0 0 0] "int diffuseDoubleSided" [0] "int diffuseBackUseDiffuseColor" [1] "color diffuseBackColor" [0.180000007 0.180000007 0.180000007] 
+			"float diffuseTransmitGain" [0] "color diffuseTransmitColor" [0.180000007 0.180000007 0.180000007] "int specularFresnelMode" [1] "color specularFaceColor" [0.100000001 0.100000001 0.100000001] "float specularFresnelShape" [5] "color specularIor" [1.5 1.5 1.5] "color specularExtinctionCoeff" [0.623199999 0.779614985 0.800000012] 
+			"float specularRoughness" [0.0500000007] "int specularModelType" [1] "float specularAnisotropy" [0] "vector specularAnisotropyDirection" [0 0 0] "int specularDoubleSided" [0] "int roughSpecularFresnelMode" [1] "color roughSpecularFaceColor" [1 1 1] "float roughSpecularFresnelShape" [5] "color roughSpecularIor" [1.45000005 1.45000005 1.45000005] 
+			"color roughSpecularExtinctionCoeff" [1.5 0.836999953 1.3019619] "float roughSpecularRoughness" [0.5] "int roughSpecularModelType" [1] "float roughSpecularAnisotropy" [0] "vector roughSpecularAnisotropyDirection" [0 0 0] "int roughSpecularDoubleSided" [0] "int clearcoatFresnelMode" [1] "color clearcoatFaceColor" [0 0 0] 
+			"float clearcoatFresnelShape" [5] "color clearcoatIor" [1.39999998 1.39999998 1.39999998] "color clearcoatExtinctionCoeff" [0.848999977 0.848999977 0.848999977] "float clearcoatThickness" [0] "color clearcoatAbsorptionTint" [0 0 0] "float clearcoatRoughness" [0] 
+			"int clearcoatModelType" [1] "float clearcoatAnisotropy" [0] "vector clearcoatAnisotropyDirection" [0 0 0] "normal clearcoatBumpNormal" [0 0 0] "int clearcoatDoubleSided" [0] "float specularEnergyCompensation" [1] "float clearcoatEnergyCompensation" [1] "float iridescenceFaceGain" [0] "float iridescenceEdgeGain" [0] 
+			"float iridescenceFresnelShape" [5] "int iridescenceMode" [0] "color iridescencePrimaryColor" [1 0 0] "color iridescenceSecondaryColor" [0 0 1] "float iridescenceRoughness" [0.200000003] "float iridescenceAnisotropy" [0] "vector iridescenceAnisotropyDirection" [0 0 0] 
+			"normal iridescenceBumpNormal" [0 0 0] "float iridescenceCurve" [1] "float iridescenceScale" [1] "int iridescenceFlip" [0] "float iridescenceThickness" [800] "int iridescenceDoubleSided" [0] "float fuzzGain" [0] "color fuzzColor" [1 1 1] "float fuzzConeAngle" [8] 
+			"normal fuzzBumpNormal" [0 0 0] "int fuzzDoubleSided" [0] "int subsurfaceType" [1] "float subsurfaceGain" [0] "color subsurfaceColor" [0.322817981 0.385112643 0.621999979] "float subsurfaceDmfp" [3] "color subsurfaceDmfpColor" [0.851000011 0.851000011 0.851000011] 
+			"float shortSubsurfaceGain" [0] "color shortSubsurfaceColor" [0.899999976 0.899999976 0.899999976] "float shortSubsurfaceDmfp" [5] "float longSubsurfaceGain" [0] "color longSubsurfaceColor" [0.800000012 0 0] "float longSubsurfaceDmfp" [20] "float subsurfaceDirectionality" [0] "float subsurfaceBleed" [0] 
+			"float subsurfaceDiffuseBlend" [0] "int subsurfaceResolveSelfIntersections" [0] "float subsurfaceIor" [1.39999998] "color subsurfacePostTint" [1 1 1] "float subsurfaceDiffuseSwitch" [1] "int subsurfaceDoubleSided" [0] "float subsurfaceTransmitGain" [0] "int considerBackside" [1] "int continuationRayMode" [0] "int maxContinuationHits" [2] "float followTopology" [0] "string subsurfaceSubset" [""] "float singlescatterGain" [0] 
+			"color singlescatterColor" [0.829999983 0.791000009 0.753000021] "float singlescatterMfp" [3] "color singlescatterMfpColor" [0.851000011 0.851000011 0.851000011] "float singlescatterDirectionality" [0.800000012] "float singlescatterIor" [1.5] "float singlescatterBlur" [0.400000006] "float singlescatterDirectGain" [0] "color singlescatterDirectGainTint" [1 1 1] 
+			"int singlescatterDoubleSided" [0] "int singlescatterConsiderBackside" [1] "int singlescatterContinuationRayMode" [0] "int singlescatterMaxContinuationHits" [2] "int singlescatterDirectGainMode" [0] "string singlescatterSubset" [""] "color irradianceTint" [1 1 1] "float irradianceRoughness" [0] "float unitLength" [0.100000001] "float refractionGain" [0] "float reflectionGain" [0] "color refractionColor" [1 1 1] 
+			"float glassRoughness" [0.100000001] "float glassAnisotropy" [0] "vector glassAnisotropyDirection" [0 0 0] "normal glassBumpNormal" [0 0 0] "float glassIor" [1.5] "int mwWalkable" [0] "float mwIor" [-1] "int thinGlass" [0] "int ignoreFresnel" [0] "int ignoreAccumOpacity" [0] 
+			"int blocksVolumes" [0] "color ssAlbedo" [0 0 0] "color extinction" [0 0 0] "float g" [0] "int multiScatter" [0] "int enableOverlappingVolumes" [0] "float glowGain" [0] "color glowColor" [1 1 1] 
+			"normal bumpNormal" [0 0 0] "color shadowColor" [0 0 0] "int shadowMode" [0] "float presence" [1] "int presenceCached" [1] "int mwStartable" [0] "float roughnessMollificationClamp" [32]  
+			"int[1] utilityPattern" [0] "string __materialid" ["Car_Paint_Metallic_ShaderSG"]
+	AttributeEnd 
+	ObjectBegin "13814000-d776-9a74-99dc-b06ebfbccf90" 
+		Attribute "Ri" "string Orientation" ["outside"]
+		Attribute "dice" "float micropolygonlength" [1] "int watertight" [0]
+		Attribute "displacementbound" "float sphere" [0.100000001] "string CoordinateSystem" ["object"]
+		Attribute "identifier" "string object" ["pPlaneShape1"]
+		Attribute "polygon" "int smoothdisplacement" [0]
+		Attribute "trace" "int displacements" [1] "int autobias" [1] "float bias" [0.00999999978]
+		PointsGeneralPolygons [1 1 1 1 1 1 1 1
+			1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+			1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+			1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+			1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1] [4 4 4 4 4 4 4 4
+			4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4
+			4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4
+			4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4
+			4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4] [0 1 12 11 1 2 13 12 2
+			3 14 13 3 4 15 14 4 5 16 15 5 6 17 16 6 7 18 17 7 8 19 18
+			8 9 20 19 9 10 21 20 11 12 23 22 12 13 24 23 13 14 25 24 14 15 26
+			25 15 16 27 26 16 17 28 27 17 18 29 28 18 19 30 29 19 20 31 30 20 21
+			32 31 22 23 34 33 23 24 35 34 24 25 36 35 25 26 37 36 26 27 38 37 27
+			28 39 38 28 29 40 39 29 30 41 40 30 31 42 41 31 32 43 42 33 34 45 44
+			34 35 46 45 35 36 47 46 36 37 48 47 37 38 49 48 38 39 50 49 39 40 51
+			50 40 41 52 51 41 42 53 52 42 43 54 53 44 45 56 55 45 46 57 56 46 47
+			58 57 47 48 59 58 48 49 60 59 49 50 61 60 50 51 62 61 51 52 63 62 52
+			53 64 63 53 54 65 64 55 56 67 66 56 57 68 67 57 58 69 68 58 59 70 69
+			59 60 71 70 60 61 72 71 61 62 73 72 62 63 74 73 63 64 75 74 64 65 76
+			75 66 67 78 77 67 68 79 78 68 69 80 79 69 70 81 80 70 71 82 81 71 72
+			83 82 72 73 84 83 73 74 85 84 74 75 86 85 75 76 87 86 77 78 89 88 78
+			79 90 89 79 80 91 90 80 81 92 91 81 82 93 92 82 83 94 93 83 84 95 94
+			84 85 96 95 85 86 97 96 86 87 98 97 88 89 100 99 89 90 101 100 90 91 102
+			101 91 92 103 102 92 93 104 103 93 94 105 104 94 95 106 105 95 96 107 106 96 97
+			108 107 97 98 109 108 99 100 111 110 100 101 112 111 101 102 113 112 102 103 114 113 103
+			104 115 114 104 105 116 115 105 106 117 116 106 107 118 117 107 108 119 118 108 109 120 119] "vertex point P" [-0.5 -1.11022302e-16 0.5
+			-0.400000006 -1.11022302e-16 0.5 -0.300000012 -1.11022302e-16 0.5 -0.199999988 -1.11022302e-16 0.5 -0.099999994 -1.11022302e-16 0.5
+			0 -1.11022302e-16 0.5 0.100000024 -1.11022302e-16 0.5 0.199999988 -1.11022302e-16 0.5 0.300000012 -1.11022302e-16 0.5
+			0.400000036 -1.11022302e-16 0.5 0.5 -1.11022302e-16 0.5 -0.5 -8.88178433e-17 0.400000006 -0.400000006 -8.88178433e-17 0.400000006
+			-0.300000012 -8.88178433e-17 0.400000006 -0.199999988 -8.88178433e-17 0.400000006 -0.099999994 -8.88178433e-17 0.400000006 0 -8.88178433e-17 0.400000006
+			0.100000024 -8.88178433e-17 0.400000006 0.199999988 -8.88178433e-17 0.400000006 0.300000012 -8.88178433e-17 0.400000006 0.400000036 -8.88178433e-17 0.400000006
+			0.5 -8.88178433e-17 0.400000006 -0.5 -6.66133841e-17 0.300000012 -0.400000006 -6.66133841e-17 0.300000012 -0.300000012 -6.66133841e-17 0.300000012
+			-0.199999988 -6.66133841e-17 0.300000012 -0.099999994 -6.66133841e-17 0.300000012 0 -6.66133841e-17 0.300000012 0.100000024 -6.66133841e-17 0.300000012
+			0.199999988 -6.66133841e-17 0.300000012 0.300000012 -6.66133841e-17 0.300000012 0.400000036 -6.66133841e-17 0.300000012 0.5 -6.66133841e-17 0.300000012
+			-0.5 -4.44089183e-17 0.199999988 -0.400000006 -4.44089183e-17 0.199999988 -0.300000012 -4.44089183e-17 0.199999988 -0.199999988 -4.44089183e-17 0.199999988
+			-0.099999994 -4.44089183e-17 0.199999988 0 -4.44089183e-17 0.199999988 0.100000024 -4.44089183e-17 0.199999988 0.199999988 -4.44089183e-17 0.199999988
+			0.300000012 -4.44089183e-17 0.199999988 0.400000036 -4.44089183e-17 0.199999988 0.5 -4.44089183e-17 0.199999988 -0.5 -2.22044592e-17 0.099999994
+			-0.400000006 -2.22044592e-17 0.099999994 -0.300000012 -2.22044592e-17 0.099999994 -0.199999988 -2.22044592e-17 0.099999994 -0.099999994 -2.22044592e-17 0.099999994
+			0 -2.22044592e-17 0.099999994 0.100000024 -2.22044592e-17 0.099999994 0.199999988 -2.22044592e-17 0.099999994 0.300000012 -2.22044592e-17 0.099999994
+			0.400000036 -2.22044592e-17 0.099999994 0.5 -2.22044592e-17 0.099999994 -0.5 0 0 -0.400000006 0 0
+			-0.300000012 0 0 -0.199999988 0 0 -0.099999994 0 0 0 0 0
+			0.100000024 0 0 0.199999988 0 0 0.300000012 0 0 0.400000036 0 0
+			0.5 0 0 -0.5 2.22044658e-17 -0.100000024 -0.400000006 2.22044658e-17 -0.100000024 -0.300000012 2.22044658e-17 -0.100000024
+			-0.199999988 2.22044658e-17 -0.100000024 -0.099999994 2.22044658e-17 -0.100000024 0 2.22044658e-17 -0.100000024 0.100000024 2.22044658e-17 -0.100000024
+			0.199999988 2.22044658e-17 -0.100000024 0.300000012 2.22044658e-17 -0.100000024 0.400000036 2.22044658e-17 -0.100000024 0.5 2.22044658e-17 -0.100000024
+			-0.5 4.44089183e-17 -0.199999988 -0.400000006 4.44089183e-17 -0.199999988 -0.300000012 4.44089183e-17 -0.199999988 -0.199999988 4.44089183e-17 -0.199999988
+			-0.099999994 4.44089183e-17 -0.199999988 0 4.44089183e-17 -0.199999988 0.100000024 4.44089183e-17 -0.199999988 0.199999988 4.44089183e-17 -0.199999988
+			0.300000012 4.44089183e-17 -0.199999988 0.400000036 4.44089183e-17 -0.199999988 0.5 4.44089183e-17 -0.199999988 -0.5 6.66133841e-17 -0.300000012
+			-0.400000006 6.66133841e-17 -0.300000012 -0.300000012 6.66133841e-17 -0.300000012 -0.199999988 6.66133841e-17 -0.300000012 -0.099999994 6.66133841e-17 -0.300000012
+			0 6.66133841e-17 -0.300000012 0.100000024 6.66133841e-17 -0.300000012 0.199999988 6.66133841e-17 -0.300000012 0.300000012 6.66133841e-17 -0.300000012
+			0.400000036 6.66133841e-17 -0.300000012 0.5 6.66133841e-17 -0.300000012 -0.5 8.88178499e-17 -0.400000036 -0.400000006 8.88178499e-17 -0.400000036
+			-0.300000012 8.88178499e-17 -0.400000036 -0.199999988 8.88178499e-17 -0.400000036 -0.099999994 8.88178499e-17 -0.400000036 0 8.88178499e-17 -0.400000036
+			0.100000024 8.88178499e-17 -0.400000036 0.199999988 8.88178499e-17 -0.400000036 0.300000012 8.88178499e-17 -0.400000036 0.400000036 8.88178499e-17 -0.400000036
+			0.5 8.88178499e-17 -0.400000036 -0.5 1.11022302e-16 -0.5 -0.400000006 1.11022302e-16 -0.5 -0.300000012 1.11022302e-16 -0.5
+			-0.199999988 1.11022302e-16 -0.5 -0.099999994 1.11022302e-16 -0.5 0 1.11022302e-16 -0.5 0.100000024 1.11022302e-16 -0.5
+			0.199999988 1.11022302e-16 -0.5 0.300000012 1.11022302e-16 -0.5 0.400000036 1.11022302e-16 -0.5 0.5 1.11022302e-16 -0.5] "facevarying normal N" [0 1 2.22044605e-16 0 1 2.22044578e-16 0 1 2.22044605e-16 0 1 2.22044631e-16
+			0 1 2.22044578e-16 0 1 2.22044565e-16 0 1 2.22044565e-16 0 1 2.22044605e-16
+			0 1 2.22044565e-16 0 1 2.22044592e-16 0 1 2.22044605e-16 0 1 2.22044565e-16
+			0 1 2.22044592e-16 0 1 2.22044578e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044578e-16 0 1 2.22044592e-16 0 1 2.22044592e-16 0 1 2.22044605e-16
+			0 1 2.22044592e-16 0 1 2.22044578e-16 0 1 2.22044605e-16 0 1 2.22044592e-16
+			0 1 2.22044578e-16 0 1 2.22044578e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044578e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044578e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044578e-16 0 1 2.22044605e-16 0 1 2.22044658e-16 0 1 2.22044605e-16
+			0 1 2.22044631e-16 0 1 2.22044605e-16 0 1 2.22044631e-16 0 1 2.22044658e-16
+			0 1 2.22044605e-16 0 1 2.22044565e-16 0 1 2.22044605e-16 0 1 2.22044631e-16
+			0 1 2.22044565e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044631e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044592e-16 0 1 2.22044631e-16 0 1 2.22044631e-16
+			0 1 2.22044592e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044631e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044658e-16 0 1 2.22044631e-16 0 1 2.22044605e-16
+			0 1 2.22044658e-16 0 1 2.22044631e-16 0 1 2.22044605e-16 0 1 2.22044631e-16
+			0 1 2.22044631e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044631e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044631e-16 0 1 2.22044631e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044631e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044631e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044631e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044631e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044565e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044565e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044658e-16 0 1 2.22044605e-16
+			0 1 2.22044631e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044631e-16
+			0 1 2.22044605e-16 0 1 2.22044565e-16 0 1 2.22044578e-16 0 1 2.22044605e-16
+			0 1 2.22044565e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044578e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044658e-16 0 1 2.22044631e-16 0 1 2.22044605e-16
+			0 1 2.22044631e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044631e-16
+			0 1 2.22044605e-16 0 1 2.22044578e-16 0 1 2.22044578e-16 0 1 2.22044605e-16
+			0 1 2.22044578e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044578e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044631e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044631e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044631e-16
+			0 1 2.22044605e-16 0 1 2.22044578e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044578e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044578e-16 0 1 2.22044605e-16
+			0 1 2.22044631e-16 0 1 2.22044605e-16 0 1 2.22044631e-16 0 1 2.22044631e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044631e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044631e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044631e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044578e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044631e-16 0 1 2.22044631e-16 0 1 2.22044605e-16 0 1 2.22044631e-16
+			0 1 2.22044631e-16 0 1 2.22044605e-16 0 1 2.22044578e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044578e-16
+			0 1 2.22044605e-16 0 1 2.22044631e-16 0 1 2.22044631e-16 0 1 2.22044605e-16
+			0 1 2.22044631e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044631e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044631e-16 0 1 2.22044605e-16 0 1 2.22044552e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044578e-16 0 1 2.22044578e-16 0 1 2.22044552e-16
+			0 1 2.22044578e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044578e-16
+			0 1 2.22044605e-16 0 1 2.22044631e-16 0 1 2.22044578e-16 0 1 2.22044605e-16
+			0 1 2.22044631e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044578e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044631e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044631e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16
+			0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16 0 1 2.22044605e-16] "facevarying float[2] st" [0 0 0.100000001 0 0.100000001 0.100000001 0 0.100000001
+			0.100000001 0 0.200000003 0 0.200000003 0.100000001 0.100000001 0.100000001 0.200000003 0 0.300000012 0
+			0.300000012 0.100000001 0.200000003 0.100000001 0.300000012 0 0.400000006 0 0.400000006 0.100000001 0.300000012 0.100000001
+			0.400000006 0 0.5 0 0.5 0.100000001 0.400000006 0.100000001 0.5 0 0.600000024 0
+			0.600000024 0.100000001 0.5 0.100000001 0.600000024 0 0.699999988 0 0.699999988 0.100000001 0.600000024 0.100000001
+			0.699999988 0 0.800000012 0 0.800000012 0.100000001 0.699999988 0.100000001 0.800000012 0 0.900000036 0
+			0.900000036 0.100000001 0.800000012 0.100000001 0.900000036 0 1 0 1 0.100000001 0.900000036 0.100000001
+			0 0.100000001 0.100000001 0.100000001 0.100000001 0.200000003 0 0.200000003 0.100000001 0.100000001 0.200000003 0.100000001
+			0.200000003 0.200000003 0.100000001 0.200000003 0.200000003 0.100000001 0.300000012 0.100000001 0.300000012 0.200000003 0.200000003 0.200000003
+			0.300000012 0.100000001 0.400000006 0.100000001 0.400000006 0.200000003 0.300000012 0.200000003 0.400000006 0.100000001 0.5 0.100000001
+			0.5 0.200000003 0.400000006 0.200000003 0.5 0.100000001 0.600000024 0.100000001 0.600000024 0.200000003 0.5 0.200000003
+			0.600000024 0.100000001 0.699999988 0.100000001 0.699999988 0.200000003 0.600000024 0.200000003 0.699999988 0.100000001 0.800000012 0.100000001
+			0.800000012 0.200000003 0.699999988 0.200000003 0.800000012 0.100000001 0.900000036 0.100000001 0.900000036 0.200000003 0.800000012 0.200000003
+			0.900000036 0.100000001 1 0.100000001 1 0.200000003 0.900000036 0.200000003 0 0.200000003 0.100000001 0.200000003
+			0.100000001 0.300000012 0 0.300000012 0.100000001 0.200000003 0.200000003 0.200000003 0.200000003 0.300000012 0.100000001 0.300000012
+			0.200000003 0.200000003 0.300000012 0.200000003 0.300000012 0.300000012 0.200000003 0.300000012 0.300000012 0.200000003 0.400000006 0.200000003
+			0.400000006 0.300000012 0.300000012 0.300000012 0.400000006 0.200000003 0.5 0.200000003 0.5 0.300000012 0.400000006 0.300000012
+			0.5 0.200000003 0.600000024 0.200000003 0.600000024 0.300000012 0.5 0.300000012 0.600000024 0.200000003 0.699999988 0.200000003
+			0.699999988 0.300000012 0.600000024 0.300000012 0.699999988 0.200000003 0.800000012 0.200000003 0.800000012 0.300000012 0.699999988 0.300000012
+			0.800000012 0.200000003 0.900000036 0.200000003 0.900000036 0.300000012 0.800000012 0.300000012 0.900000036 0.200000003 1 0.200000003
+			1 0.300000012 0.900000036 0.300000012 0 0.300000012 0.100000001 0.300000012 0.100000001 0.400000006 0 0.400000006
+			0.100000001 0.300000012 0.200000003 0.300000012 0.200000003 0.400000006 0.100000001 0.400000006 0.200000003 0.300000012 0.300000012 0.300000012
+			0.300000012 0.400000006 0.200000003 0.400000006 0.300000012 0.300000012 0.400000006 0.300000012 0.400000006 0.400000006 0.300000012 0.400000006
+			0.400000006 0.300000012 0.5 0.300000012 0.5 0.400000006 0.400000006 0.400000006 0.5 0.300000012 0.600000024 0.300000012
+			0.600000024 0.400000006 0.5 0.400000006 0.600000024 0.300000012 0.699999988 0.300000012 0.699999988 0.400000006 0.600000024 0.400000006
+			0.699999988 0.300000012 0.800000012 0.300000012 0.800000012 0.400000006 0.699999988 0.400000006 0.800000012 0.300000012 0.900000036 0.300000012
+			0.900000036 0.400000006 0.800000012 0.400000006 0.900000036 0.300000012 1 0.300000012 1 0.400000006 0.900000036 0.400000006
+			0 0.400000006 0.100000001 0.400000006 0.100000001 0.5 0 0.5 0.100000001 0.400000006 0.200000003 0.400000006
+			0.200000003 0.5 0.100000001 0.5 0.200000003 0.400000006 0.300000012 0.400000006 0.300000012 0.5 0.200000003 0.5
+			0.300000012 0.400000006 0.400000006 0.400000006 0.400000006 0.5 0.300000012 0.5 0.400000006 0.400000006 0.5 0.400000006
+			0.5 0.5 0.400000006 0.5 0.5 0.400000006 0.600000024 0.400000006 0.600000024 0.5 0.5 0.5
+			0.600000024 0.400000006 0.699999988 0.400000006 0.699999988 0.5 0.600000024 0.5 0.699999988 0.400000006 0.800000012 0.400000006
+			0.800000012 0.5 0.699999988 0.5 0.800000012 0.400000006 0.900000036 0.400000006 0.900000036 0.5 0.800000012 0.5
+			0.900000036 0.400000006 1 0.400000006 1 0.5 0.900000036 0.5 0 0.5 0.100000001 0.5
+			0.100000001 0.600000024 0 0.600000024 0.100000001 0.5 0.200000003 0.5 0.200000003 0.600000024 0.100000001 0.600000024
+			0.200000003 0.5 0.300000012 0.5 0.300000012 0.600000024 0.200000003 0.600000024 0.300000012 0.5 0.400000006 0.5
+			0.400000006 0.600000024 0.300000012 0.600000024 0.400000006 0.5 0.5 0.5 0.5 0.600000024 0.400000006 0.600000024
+			0.5 0.5 0.600000024 0.5 0.600000024 0.600000024 0.5 0.600000024 0.600000024 0.5 0.699999988 0.5
+			0.699999988 0.600000024 0.600000024 0.600000024 0.699999988 0.5 0.800000012 0.5 0.800000012 0.600000024 0.699999988 0.600000024
+			0.800000012 0.5 0.900000036 0.5 0.900000036 0.600000024 0.800000012 0.600000024 0.900000036 0.5 1 0.5
+			1 0.600000024 0.900000036 0.600000024 0 0.600000024 0.100000001 0.600000024 0.100000001 0.699999988 0 0.699999988
+			0.100000001 0.600000024 0.200000003 0.600000024 0.200000003 0.699999988 0.100000001 0.699999988 0.200000003 0.600000024 0.300000012 0.600000024
+			0.300000012 0.699999988 0.200000003 0.699999988 0.300000012 0.600000024 0.400000006 0.600000024 0.400000006 0.699999988 0.300000012 0.699999988
+			0.400000006 0.600000024 0.5 0.600000024 0.5 0.699999988 0.400000006 0.699999988 0.5 0.600000024 0.600000024 0.600000024
+			0.600000024 0.699999988 0.5 0.699999988 0.600000024 0.600000024 0.699999988 0.600000024 0.699999988 0.699999988 0.600000024 0.699999988
+			0.699999988 0.600000024 0.800000012 0.600000024 0.800000012 0.699999988 0.699999988 0.699999988 0.800000012 0.600000024 0.900000036 0.600000024
+			0.900000036 0.699999988 0.800000012 0.699999988 0.900000036 0.600000024 1 0.600000024 1 0.699999988 0.900000036 0.699999988
+			0 0.699999988 0.100000001 0.699999988 0.100000001 0.800000012 0 0.800000012 0.100000001 0.699999988 0.200000003 0.699999988
+			0.200000003 0.800000012 0.100000001 0.800000012 0.200000003 0.699999988 0.300000012 0.699999988 0.300000012 0.800000012 0.200000003 0.800000012
+			0.300000012 0.699999988 0.400000006 0.699999988 0.400000006 0.800000012 0.300000012 0.800000012 0.400000006 0.699999988 0.5 0.699999988
+			0.5 0.800000012 0.400000006 0.800000012 0.5 0.699999988 0.600000024 0.699999988 0.600000024 0.800000012 0.5 0.800000012
+			0.600000024 0.699999988 0.699999988 0.699999988 0.699999988 0.800000012 0.600000024 0.800000012 0.699999988 0.699999988 0.800000012 0.699999988
+			0.800000012 0.800000012 0.699999988 0.800000012 0.800000012 0.699999988 0.900000036 0.699999988 0.900000036 0.800000012 0.800000012 0.800000012
+			0.900000036 0.699999988 1 0.699999988 1 0.800000012 0.900000036 0.800000012 0 0.800000012 0.100000001 0.800000012
+			0.100000001 0.900000036 0 0.900000036 0.100000001 0.800000012 0.200000003 0.800000012 0.200000003 0.900000036 0.100000001 0.900000036
+			0.200000003 0.800000012 0.300000012 0.800000012 0.300000012 0.900000036 0.200000003 0.900000036 0.300000012 0.800000012 0.400000006 0.800000012
+			0.400000006 0.900000036 0.300000012 0.900000036 0.400000006 0.800000012 0.5 0.800000012 0.5 0.900000036 0.400000006 0.900000036
+			0.5 0.800000012 0.600000024 0.800000012 0.600000024 0.900000036 0.5 0.900000036 0.600000024 0.800000012 0.699999988 0.800000012
+			0.699999988 0.900000036 0.600000024 0.900000036 0.699999988 0.800000012 0.800000012 0.800000012 0.800000012 0.900000036 0.699999988 0.900000036
+			0.800000012 0.800000012 0.900000036 0.800000012 0.900000036 0.900000036 0.800000012 0.900000036 0.900000036 0.800000012 1 0.800000012
+			1 0.900000036 0.900000036 0.900000036 0 0.900000036 0.100000001 0.900000036 0.100000001 1 0 1
+			0.100000001 0.900000036 0.200000003 0.900000036 0.200000003 1 0.100000001 1 0.200000003 0.900000036 0.300000012 0.900000036
+			0.300000012 1 0.200000003 1 0.300000012 0.900000036 0.400000006 0.900000036 0.400000006 1 0.300000012 1
+			0.400000006 0.900000036 0.5 0.900000036 0.5 1 0.400000006 1 0.5 0.900000036 0.600000024 0.900000036
+			0.600000024 1 0.5 1 0.600000024 0.900000036 0.699999988 0.900000036 0.699999988 1 0.600000024 1
+			0.699999988 0.900000036 0.800000012 0.900000036 0.800000012 1 0.699999988 1 0.800000012 0.900000036 0.900000036 0.900000036
+			0.900000036 1 0.800000012 1 0.900000036 0.900000036 1 0.900000036 1 1 0.900000036 1]
+	ObjectEnd 
+	AttributeBegin 
+		TransformBegin 
+			Transform [ -0.235142112 6.9388939e-18 -0.971961021 0  0.11171443 0.993372738 -0.0270265639 0  0.965519607 -0.114937149 -0.233583778 0  0 0 0 1 ]
+			ScopedCoordinateSystem "persp1Shape"
+		TransformEnd 
+		TransformBegin 
+			Transform [ -0.235142112 6.9388939e-18 -0.971961021 0  0.11171443 0.993372738 -0.0270265639 0  0.965519607 -0.114937149 -0.233583778 0  0 0 0 1 ]
+			ScopedCoordinateSystem "persp1"
+		TransformEnd 
+		TransformBegin 
+			Transform [ 0.544639051 0 -0.838670552 0  -0.416014165 0.868299663 -0.270162761 0  0.728217363 0.496040016 0.472909898 0  3.26067877 3.06296802 2.78703737 1 ]
+			ScopedCoordinateSystem "perspShape"
+		TransformEnd 
+		TransformBegin 
+			Transform [ 0.544639051 0 -0.838670552 0  -0.416014165 0.868299663 -0.270162761 0  0.728217363 0.496040016 0.472909898 0  3.26067877 3.06296802 2.78703737 1 ]
+			ScopedCoordinateSystem "persp"
+		TransformEnd 
+		Attribute "Ri" "int Sides" [2]
+		Attribute "grouping" "string membership" ["World"]
+		Attribute "identifier" "string name" ["|pPlane1|pPlaneShape1"] "int id" [-249450833] "int id2" [0]
+		Attribute "lightfilter" "string subset" [""]
+		Attribute "lighting" "int mute" [0] "string excludesubset" [""]
+		Attribute "shade" "float relativepixelvariance" [1]
+		Attribute "trace" "int maxspeculardepth" [4] "int maxdiffusedepth" [1]
+		Attribute "user" "string __materialid" ["terrazzo_ShaderSG"]
+		Attribute "visibility" "int camera" [1] "int indirect" [1] "int transmission" [1]
+		Bxdf "PxrLayerSurface" "terrazzo_Shader" "string __materialid" ["terrazzo_ShaderSG"]
+		Transform [ 8.27638721 0 0 0  0 8.27638721 0 0  0 0 8.27638721 0  -1.13878965 -0.200286493 0.458441764 1 ]
+		ObjectInstance "13814000-d776-9a74-99dc-b06ebfbccf90" 
+	AttributeEnd 
+	ObjectBegin "13814000-7354-9a75-99dc-b06ebfbccf90" 
+		Transform [ -0 0 -1 0  1 0 -0 -0  -0 1 0 0  0 0 0 1 ]
+		Light "PxrEnvDayLight" "PxrEnvDayLightShape" "float intensity" [1] "float exposure" [0] "vector sunDirection" [-0 0 1] "float haziness" [2] "color skyTint" [1 1 1] "color sunTint" [1 1 1] 
+			"float sunSize" [1] "int groundMode" [0] "color groundColor" [0.180000007 0.180000007 0.180000007] "int month" [11] "int day" [20] "int year" [2014] "float hour" [14.6333332] "float zone" [-8] "float latitude" [47.6018982] "float longitude" [-122.331802] "float specular" [1] "float diffuse" [1] 
+			"int enableShadows" [1] "color shadowColor" [0 0 0] "float shadowDistance" [-1] "float shadowFalloff" [-1] "float shadowFalloffGamma" [1] "string shadowSubset" [""] "string shadowExcludeSubset" [""] "int traceLightPaths" [0] "int thinShadow" [1] "int visibleInRefractionPath" [1] "int cheapCaustics" [0] "string cheapCausticsExcludeGroup" [""] "int fixedSampleCount" [0] "string lightGroup" [""] "float importanceMultiplier" [1]
+	ObjectEnd 
+	AttributeBegin 
+		TransformBegin 
+			Transform [ -0.235142112 6.9388939e-18 -0.971961021 0  0.11171443 0.993372738 -0.0270265639 0  0.965519607 -0.114937149 -0.233583778 0  0 0 0 1 ]
+			ScopedCoordinateSystem "persp1Shape"
+		TransformEnd 
+		TransformBegin 
+			Transform [ -0.235142112 6.9388939e-18 -0.971961021 0  0.11171443 0.993372738 -0.0270265639 0  0.965519607 -0.114937149 -0.233583778 0  0 0 0 1 ]
+			ScopedCoordinateSystem "persp1"
+		TransformEnd 
+		TransformBegin 
+			Transform [ 0.544639051 0 -0.838670552 0  -0.416014165 0.868299663 -0.270162761 0  0.728217363 0.496040016 0.472909898 0  3.26067877 3.06296802 2.78703737 1 ]
+			ScopedCoordinateSystem "perspShape"
+		TransformEnd 
+		TransformBegin 
+			Transform [ 0.544639051 0 -0.838670552 0  -0.416014165 0.868299663 -0.270162761 0  0.728217363 0.496040016 0.472909898 0  3.26067877 3.06296802 2.78703737 1 ]
+			ScopedCoordinateSystem "persp"
+		TransformEnd 
+		Attribute "Ri" "int Sides" [2]
+		Attribute "grouping" "string membership" ["PxrEnvDayLightShape World"]
+		Attribute "identifier" "string name" ["|PxrEnvDayLight|PxrEnvDayLightShape"] "int id" [-426846401] "int id2" [0]
+		Attribute "lighting" "int mute" [0]
+		Attribute "shade" "float relativepixelvariance" [1]
+		Attribute "trace" "int maxspeculardepth" [4] "int maxdiffusedepth" [1]
+		Attribute "visibility" "int camera" [1] "int indirect" [0] "int transmission" [1]
+		Transform [ 1 0 0 0  0 1 0 0  0 0 1 0  -1.13878965 -0.200286493 0.458441764 1 ]
+		ObjectInstance "13814000-7354-9a75-99dc-b06ebfbccf90" 
+	AttributeEnd 
+	ObjectBegin "13814000-9a48-9a75-99dc-b06ebfbccf90" 
+		Attribute "Ri" "string Orientation" ["outside"]
+		Attribute "dice" "float micropolygonlength" [1] "int watertight" [0]
+		Attribute "displacementbound" "float sphere" [0.100000001] "string CoordinateSystem" ["object"]
+		Attribute "identifier" "string object" ["pSphereShape2"]
+		Attribute "polygon" "int smoothdisplacement" [0]
+		Attribute "trace" "int displacements" [1] "int autobias" [1] "float bias" [0.00999999978]
+		HierarchicalSubdivisionMesh "catmull-clark" [4 4 4 4 4 4 4 4 4
+			4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4
+			4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4
+			4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4
+			4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4
+			4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4
+			4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4
+			4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4
+			4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4
+			4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4
+			4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4
+			4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4
+			4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4
+			4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4
+			4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4
+			4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4
+			4 4 4 4 4 4 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3
+			3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3] [0 1 21 20 1 2 22 21 2 3 23 22 3 4 24 23 4 5 25
+			24 5 6 26 25 6 7 27 26 7 8 28 27 8 9 29 28 9 10 30 29 10 11
+			31 30 11 12 32 31 12 13 33 32 13 14 34 33 14 15 35 34 15 16 36 35 16
+			17 37 36 17 18 38 37 18 19 39 38 19 0 20 39 20 21 41 40 21 22 42 41
+			22 23 43 42 23 24 44 43 24 25 45 44 25 26 46 45 26 27 47 46 27 28 48
+			47 28 29 49 48 29 30 50 49 30 31 51 50 31 32 52 51 32 33 53 52 33 34
+			54 53 34 35 55 54 35 36 56 55 36 37 57 56 37 38 58 57 38 39 59 58 39
+			20 40 59 40 41 61 60 41 42 62 61 42 43 63 62 43 44 64 63 44 45 65 64
+			45 46 66 65 46 47 67 66 47 48 68 67 48 49 69 68 49 50 70 69 50 51 71
+			70 51 52 72 71 52 53 73 72 53 54 74 73 54 55 75 74 55 56 76 75 56 57
+			77 76 57 58 78 77 58 59 79 78 59 40 60 79 60 61 81 80 61 62 82 81 62
+			63 83 82 63 64 84 83 64 65 85 84 65 66 86 85 66 67 87 86 67 68 88 87
+			68 69 89 88 69 70 90 89 70 71 91 90 71 72 92 91 72 73 93 92 73 74 94
+			93 74 75 95 94 75 76 96 95 76 77 97 96 77 78 98 97 78 79 99 98 79 60
+			80 99 80 81 101 100 81 82 102 101 82 83 103 102 83 84 104 103 84 85 105 104 85
+			86 106 105 86 87 107 106 87 88 108 107 88 89 109 108 89 90 110 109 90 91 111 110
+			91 92 112 111 92 93 113 112 93 94 114 113 94 95 115 114 95 96 116 115 96 97 117
+			116 97 98 118 117 98 99 119 118 99 80 100 119 100 101 121 120 101 102 122 121 102 103
+			123 122 103 104 124 123 104 105 125 124 105 106 126 125 106 107 127 126 107 108 128 127 108
+			109 129 128 109 110 130 129 110 111 131 130 111 112 132 131 112 113 133 132 113 114 134 133
+			114 115 135 134 115 116 136 135 116 117 137 136 117 118 138 137 118 119 139 138 119 100 120
+			139 120 121 141 140 121 122 142 141 122 123 143 142 123 124 144 143 124 125 145 144 125 126
+			146 145 126 127 147 146 127 128 148 147 128 129 149 148 129 130 150 149 130 131 151 150 131
+			132 152 151 132 133 153 152 133 134 154 153 134 135 155 154 135 136 156 155 136 137 157 156
+			137 138 158 157 138 139 159 158 139 120 140 159 140 141 161 160 141 142 162 161 142 143 163
+			162 143 144 164 163 144 145 165 164 145 146 166 165 146 147 167 166 147 148 168 167 148 149
+			169 168 149 150 170 169 150 151 171 170 151 152 172 171 152 153 173 172 153 154 174 173 154
+			155 175 174 155 156 176 175 156 157 177 176 157 158 178 177 158 159 179 178 159 140 160 179
+			160 161 181 180 161 162 182 181 162 163 183 182 163 164 184 183 164 165 185 184 165 166 186
+			185 166 167 187 186 167 168 188 187 168 169 189 188 169 170 190 189 170 171 191 190 171 172
+			192 191 172 173 193 192 173 174 194 193 174 175 195 194 175 176 196 195 176 177 197 196 177
+			178 198 197 178 179 199 198 179 160 180 199 180 181 201 200 181 182 202 201 182 183 203 202
+			183 184 204 203 184 185 205 204 185 186 206 205 186 187 207 206 187 188 208 207 188 189 209
+			208 189 190 210 209 190 191 211 210 191 192 212 211 192 193 213 212 193 194 214 213 194 195
+			215 214 195 196 216 215 196 197 217 216 197 198 218 217 198 199 219 218 199 180 200 219 200
+			201 221 220 201 202 222 221 202 203 223 222 203 204 224 223 204 205 225 224 205 206 226 225
+			206 207 227 226 207 208 228 227 208 209 229 228 209 210 230 229 210 211 231 230 211 212 232
+			231 212 213 233 232 213 214 234 233 214 215 235 234 215 216 236 235 216 217 237 236 217 218
+			238 237 218 219 239 238 219 200 220 239 220 221 241 240 221 222 242 241 222 223 243 242 223
+			224 244 243 224 225 245 244 225 226 246 245 226 227 247 246 227 228 248 247 228 229 249 248
+			229 230 250 249 230 231 251 250 231 232 252 251 232 233 253 252 233 234 254 253 234 235 255
+			254 235 236 256 255 236 237 257 256 237 238 258 257 238 239 259 258 239 220 240 259 240 241
+			261 260 241 242 262 261 242 243 263 262 243 244 264 263 244 245 265 264 245 246 266 265 246
+			247 267 266 247 248 268 267 248 249 269 268 249 250 270 269 250 251 271 270 251 252 272 271
+			252 253 273 272 253 254 274 273 254 255 275 274 255 256 276 275 256 257 277 276 257 258 278
+			277 258 259 279 278 259 240 260 279 260 261 281 280 261 262 282 281 262 263 283 282 263 264
+			284 283 264 265 285 284 265 266 286 285 266 267 287 286 267 268 288 287 268 269 289 288 269
+			270 290 289 270 271 291 290 271 272 292 291 272 273 293 292 273 274 294 293 274 275 295 294
+			275 276 296 295 276 277 297 296 277 278 298 297 278 279 299 298 279 260 280 299 280 281 301
+			300 281 282 302 301 282 283 303 302 283 284 304 303 284 285 305 304 285 286 306 305 286 287
+			307 306 287 288 308 307 288 289 309 308 289 290 310 309 290 291 311 310 291 292 312 311 292
+			293 313 312 293 294 314 313 294 295 315 314 295 296 316 315 296 297 317 316 297 298 318 317
+			298 299 319 318 299 280 300 319 300 301 321 320 301 302 322 321 302 303 323 322 303 304 324
+			323 304 305 325 324 305 306 326 325 306 307 327 326 307 308 328 327 308 309 329 328 309 310
+			330 329 310 311 331 330 311 312 332 331 312 313 333 332 313 314 334 333 314 315 335 334 315
+			316 336 335 316 317 337 336 317 318 338 337 318 319 339 338 319 300 320 339 320 321 341 340
+			321 322 342 341 322 323 343 342 323 324 344 343 324 325 345 344 325 326 346 345 326 327 347
+			346 327 328 348 347 328 329 349 348 329 330 350 349 330 331 351 350 331 332 352 351 332 333
+			353 352 333 334 354 353 334 335 355 354 335 336 356 355 336 337 357 356 337 338 358 357 338
+			339 359 358 339 320 340 359 340 341 361 360 341 342 362 361 342 343 363 362 343 344 364 363
+			344 345 365 364 345 346 366 365 346 347 367 366 347 348 368 367 348 349 369 368 349 350 370
+			369 350 351 371 370 351 352 372 371 352 353 373 372 353 354 374 373 354 355 375 374 355 356
+			376 375 356 357 377 376 357 358 378 377 358 359 379 378 359 340 360 379 1 0 380 2 1
+			380 3 2 380 4 3 380 5 4 380 6 5 380 7 6 380 8 7 380 9 8 380 10
+			9 380 11 10 380 12 11 380 13 12 380 14 13 380 15 14 380 16 15 380 17 16 380
+			18 17 380 19 18 380 0 19 380 360 361 381 361 362 381 362 363 381 363 364 381 364 365
+			381 365 366 381 366 367 381 367 368 381 368 369 381 369 370 381 370 371 381 371 372 381 372
+			373 381 373 374 381 374 375 381 375 376 381 376 377 381 377 378 381 378 379 381 379 360 381] ["creasemethod" "facevaryingpropagatecorners" "interpolateboundary" "facevaryinginterpolateboundary"] [0 0 1 1 0 0 1 0 0 1 0 0] [1 1 3] [] ["chaikin"] "vertex point P" [0.148778126 -0.987688363 -0.0483409427 0.126558229 -0.987688363 -0.0919499323
+			0.0919499323 -0.987688363 -0.126558229 0.0483409353 -0.987688363 -0.148778111 0 -0.987688363 -0.156434551 -0.0483409353 -0.987688363 -0.148778096
+			-0.0919499174 -0.987688363 -0.1265582 -0.126558185 -0.987688363 -0.0919499025 -0.148778066 -0.987688363 -0.0483409241 -0.156434521 -0.987688363 0
+			-0.148778066 -0.987688363 0.0483409241 -0.126558185 -0.987688363 0.091949895 -0.091949895 -0.987688363 0.12655817 -0.0483409241 -0.987688363 0.148778051
+			-4.6621107e-09 -0.987688363 0.156434491 0.0483409092 -0.987688363 0.148778036 0.0919498801 -0.987688363 0.126558155 0.126558155 -0.987688363 0.0919498876
+			0.148778036 -0.987688363 0.0483409129 0.156434476 -0.987688363 0 0.293892831 -0.95105654 -0.0954915658 0.250000179 -0.95105654 -0.181635737
+			0.181635737 -0.95105654 -0.250000149 0.0954915509 -0.95105654 -0.293892801 0 -0.95105654 -0.309017152 -0.0954915509 -0.95105654 -0.293892771
+			-0.181635708 -0.95105654 -0.250000089 -0.250000089 -0.95105654 -0.181635693 -0.293892711 -0.95105654 -0.0954915285 -0.309017062 -0.95105654 0
+			-0.293892711 -0.95105654 0.0954915285 -0.25000006 -0.95105654 0.181635678 -0.181635678 -0.95105654 0.25000006 -0.0954915285 -0.95105654 0.293892682
+			-9.20942433e-09 -0.95105654 0.309017032 0.0954914987 -0.95105654 0.293892652 0.181635633 -0.95105654 0.25000003 0.25 -0.95105654 0.181635648
+			0.293892652 -0.95105654 0.0954915062 0.309017003 -0.95105654 0 0.431770921 -0.891006529 -0.140290871 0.367286295 -0.891006529 -0.266849101
+			0.266849101 -0.891006529 -0.367286265 0.140290856 -0.891006529 -0.431770861 0 -0.891006529 -0.453990728 -0.140290856 -0.891006529 -0.431770831
+			-0.266849041 -0.891006529 -0.367286175 -0.367286146 -0.891006529 -0.266849011 -0.431770772 -0.891006529 -0.140290812 -0.453990638 -0.891006529 0
+			-0.431770772 -0.891006529 0.140290812 -0.367286116 -0.891006529 0.266848981 -0.266848981 -0.891006529 0.367286116 -0.140290812 -0.891006529 0.431770712
+			-1.35299718e-08 -0.891006529 0.453990579 0.140290782 -0.891006529 0.431770682 0.266848922 -0.891006529 0.367286086 0.367286056 -0.891006529 0.266848952
+			0.431770653 -0.891006529 0.140290797 0.453990519 -0.891006529 0 0.55901736 -0.809017003 -0.181635737 0.475528568 -0.809017003 -0.345491707
+			0.345491707 -0.809017003 -0.475528538 0.181635723 -0.809017003 -0.559017301 0 -0.809017003 -0.587785542 -0.181635723 -0.809017003 -0.559017241
+			-0.345491648 -0.809017003 -0.475528419 -0.475528389 -0.809017003 -0.345491588 -0.559017122 -0.809017003 -0.181635663 -0.587785363 -0.809017003 0
+			-0.559017122 -0.809017003 0.181635663 -0.475528359 -0.809017003 0.345491558 -0.345491558 -0.809017003 0.47552833 -0.181635663 -0.809017003 0.559017062
+			-1.75173653e-08 -0.809017003 0.587785304 0.181635618 -0.809017003 0.559017062 0.345491499 -0.809017003 0.4755283 0.47552827 -0.809017003 0.345491529
+			0.559017003 -0.809017003 0.181635633 0.587785244 -0.809017003 0 0.672498941 -0.707106769 -0.218508139 0.572061777 -0.707106769 -0.415627182
+			0.415627182 -0.707106769 -0.572061718 0.218508124 -0.707106769 -0.672498882 0 -0.707106769 -0.707107127 -0.218508124 -0.707106769 -0.672498822
+			-0.415627092 -0.707106769 -0.572061598 -0.572061539 -0.707106769 -0.415627062 -0.672498703 -0.707106769 -0.21850805 -0.707106948 -0.707106769 0
+			-0.672498703 -0.707106769 0.21850805 -0.572061539 -0.707106769 0.415627003 -0.415627003 -0.707106769 0.572061479 -0.21850805 -0.707106769 0.672498584
+			-2.10734239e-08 -0.707106769 0.707106829 0.21850799 -0.707106769 0.672498584 0.415626913 -0.707106769 0.572061419 0.572061419 -0.707106769 0.415626973
+			0.672498524 -0.707106769 0.21850802 0.707106769 -0.707106769 0 0.769421399 -0.587785244 -0.250000149 0.654508948 -0.587785244 -0.475528538
+			0.475528538 -0.587785244 -0.654508889 0.250000119 -0.587785244 -0.769421279 0 -0.587785244 -0.80901736 -0.250000119 -0.587785244 -0.76942122
+			-0.475528449 -0.587785244 -0.65450877 -0.65450871 -0.587785244 -0.475528389 -0.769421101 -0.587785244 -0.25000006 -0.809017181 -0.587785244 0
+			-0.769421101 -0.587785244 0.25000006 -0.65450865 -0.587785244 0.475528359 -0.475528359 -0.587785244 0.654508591 -0.25000006 -0.587785244 0.769420981
+			-2.41105855e-08 -0.587785244 0.809017122 0.249999985 -0.587785244 0.769420981 0.47552827 -0.587785244 0.654508531 0.654508531 -0.587785244 0.4755283
+			0.769420922 -0.587785244 0.25 0.809017003 -0.587785244 0 0.847398102 -0.453990519 -0.275336325 0.720839918 -0.453990519 -0.523720801
+			0.523720801 -0.453990519 -0.720839858 0.275336295 -0.453990519 -0.847397983 0 -0.453990519 -0.891006947 -0.275336295 -0.453990519 -0.847397983
+			-0.523720682 -0.453990519 -0.720839679 -0.72083962 -0.453990519 -0.523720622 -0.847397804 -0.453990519 -0.275336206 -0.891006768 -0.453990519 0
+			-0.847397804 -0.453990519 0.275336206 -0.72083962 -0.453990519 0.523720622 -0.523720622 -0.453990519 0.72083956 -0.275336206 -0.453990519 0.847397685
+			-2.65540638e-08 -0.453990519 0.891006649 0.275336146 -0.453990519 0.847397625 0.523720503 -0.453990519 0.7208395 0.720839441 -0.453990519 0.523720562
+			0.847397566 -0.453990519 0.275336176 0.891006529 -0.453990519 0 0.904509127 -0.309016973 -0.293892801 0.769421399 -0.309016973 -0.55901736
+			0.55901736 -0.309016973 -0.769421339 0.293892771 -0.309016973 -0.904509008 0 -0.309016973 -0.951057017 -0.293892771 -0.309016973 -0.904508948
+			-0.559017241 -0.309016973 -0.76942122 -0.76942116 -0.309016973 -0.559017181 -0.90450877 -0.309016973 -0.293892711 -0.951056778 -0.309016973 0
+			-0.90450877 -0.309016973 0.293892711 -0.769421101 -0.309016973 0.559017122 -0.559017122 -0.309016973 0.769421041 -0.293892711 -0.309016973 0.90450865
+			-2.83436936e-08 -0.309016973 0.951056659 0.293892622 -0.309016973 0.904508591 0.559017003 -0.309016973 0.769420981 0.769420922 -0.309016973 0.559017062
+			0.904508531 -0.309016973 0.293892652 0.95105654 -0.309016973 0 0.939348042 -0.156434372 -0.305212677 0.799057186 -0.156434372 -0.580549002
+			0.580549002 -0.156434372 -0.799057126 0.305212647 -0.156434372 -0.939347923 0 -0.156434372 -0.987688839 -0.305212647 -0.156434372 -0.939347863
+			-0.580548882 -0.156434372 -0.799056947 -0.799056888 -0.156434372 -0.580548823 -0.939347684 -0.156434372 -0.305212557 -0.987688601 -0.156434372 0
+			-0.939347684 -0.156434372 0.305212557 -0.799056828 -0.156434372 0.580548763 -0.580548763 -0.156434372 0.799056768 -0.305212557 -0.156434372 0.939347565
+			-2.9435407e-08 -0.156434372 0.987688482 0.305212468 -0.156434372 0.939347565 0.580548644 -0.156434372 0.799056709 0.799056649 -0.156434372 0.580548704
+			0.939347506 -0.156434372 0.305212498 0.987688363 -0.156434372 0 0.951057136 0 -0.309017181 0.809017539 0 -0.587785602
+			0.587785602 0 -0.809017479 0.309017152 0 -0.951057017 0 0 -1.00000048 -0.309017152 0 -0.951056957
+			-0.587785482 0 -0.809017301 -0.809017241 0 -0.587785423 -0.951056778 0 -0.309017062 -1.00000024 0 0
+			-0.951056778 0 0.309017062 -0.809017181 0 0.587785363 -0.587785363 0 0.809017122 -0.309017062 0 0.951056659
+			-2.98023224e-08 0 1.00000012 0.309016973 0 0.9510566 0.587785244 0 0.809017062 0.809017003 0 0.587785304
+			0.95105654 0 0.309017003 1 0 0 0.939348042 0.156434372 -0.305212677 0.799057186 0.156434372 -0.580549002
+			0.580549002 0.156434372 -0.799057126 0.305212647 0.156434372 -0.939347923 0 0.156434372 -0.987688839 -0.305212647 0.156434372 -0.939347863
+			-0.580548882 0.156434372 -0.799056947 -0.799056888 0.156434372 -0.580548823 -0.939347684 0.156434372 -0.305212557 -0.987688601 0.156434372 0
+			-0.939347684 0.156434372 0.305212557 -0.799056828 0.156434372 0.580548763 -0.580548763 0.156434372 0.799056768 -0.305212557 0.156434372 0.939347565
+			-2.9435407e-08 0.156434372 0.987688482 0.305212468 0.156434372 0.939347565 0.580548644 0.156434372 0.799056709 0.799056649 0.156434372 0.580548704
+			0.939347506 0.156434372 0.305212498 0.987688363 0.156434372 0 0.904509127 0.309016973 -0.293892801 0.769421399 0.309016973 -0.55901736
+			0.55901736 0.309016973 -0.769421339 0.293892771 0.309016973 -0.904509008 0 0.309016973 -0.951057017 -0.293892771 0.309016973 -0.904508948
+			-0.559017241 0.309016973 -0.76942122 -0.76942116 0.309016973 -0.559017181 -0.90450877 0.309016973 -0.293892711 -0.951056778 0.309016973 0
+			-0.90450877 0.309016973 0.293892711 -0.769421101 0.309016973 0.559017122 -0.559017122 0.309016973 0.769421041 -0.293892711 0.309016973 0.90450865
+			-2.83436936e-08 0.309016973 0.951056659 0.293892622 0.309016973 0.904508591 0.559017003 0.309016973 0.769420981 0.769420922 0.309016973 0.559017062
+			0.904508531 0.309016973 0.293892652 0.95105654 0.309016973 0 0.847398102 0.453990519 -0.275336325 0.720839918 0.453990519 -0.523720801
+			0.523720801 0.453990519 -0.720839858 0.275336295 0.453990519 -0.847397983 0 0.453990519 -0.891006947 -0.275336295 0.453990519 -0.847397983
+			-0.523720682 0.453990519 -0.720839679 -0.72083962 0.453990519 -0.523720622 -0.847397804 0.453990519 -0.275336206 -0.891006768 0.453990519 0
+			-0.847397804 0.453990519 0.275336206 -0.72083962 0.453990519 0.523720622 -0.523720622 0.453990519 0.72083956 -0.275336206 0.453990519 0.847397685
+			-2.65540638e-08 0.453990519 0.891006649 0.275336146 0.453990519 0.847397625 0.523720503 0.453990519 0.7208395 0.720839441 0.453990519 0.523720562
+			0.847397566 0.453990519 0.275336176 0.891006529 0.453990519 0 0.769421399 0.587785244 -0.250000149 0.654508948 0.587785244 -0.475528538
+			0.475528538 0.587785244 -0.654508889 0.250000119 0.587785244 -0.769421279 0 0.587785244 -0.80901736 -0.250000119 0.587785244 -0.76942122
+			-0.475528449 0.587785244 -0.65450877 -0.65450871 0.587785244 -0.475528389 -0.769421101 0.587785244 -0.25000006 -0.809017181 0.587785244 0
+			-0.769421101 0.587785244 0.25000006 -0.65450865 0.587785244 0.475528359 -0.475528359 0.587785244 0.654508591 -0.25000006 0.587785244 0.769420981
+			-2.41105855e-08 0.587785244 0.809017122 0.249999985 0.587785244 0.769420981 0.47552827 0.587785244 0.654508531 0.654508531 0.587785244 0.4755283
+			0.769420922 0.587785244 0.25 0.809017003 0.587785244 0 0.672498941 0.707106769 -0.218508139 0.572061777 0.707106769 -0.415627182
+			0.415627182 0.707106769 -0.572061718 0.218508124 0.707106769 -0.672498882 0 0.707106769 -0.707107127 -0.218508124 0.707106769 -0.672498822
+			-0.415627092 0.707106769 -0.572061598 -0.572061539 0.707106769 -0.415627062 -0.672498703 0.707106769 -0.21850805 -0.707106948 0.707106769 0
+			-0.672498703 0.707106769 0.21850805 -0.572061539 0.707106769 0.415627003 -0.415627003 0.707106769 0.572061479 -0.21850805 0.707106769 0.672498584
+			-2.10734239e-08 0.707106769 0.707106829 0.21850799 0.707106769 0.672498584 0.415626913 0.707106769 0.572061419 0.572061419 0.707106769 0.415626973
+			0.672498524 0.707106769 0.21850802 0.707106769 0.707106769 0 0.55901736 0.809017003 -0.181635737 0.475528568 0.809017003 -0.345491707
+			0.345491707 0.809017003 -0.475528538 0.181635723 0.809017003 -0.559017301 0 0.809017003 -0.587785542 -0.181635723 0.809017003 -0.559017241
+			-0.345491648 0.809017003 -0.475528419 -0.475528389 0.809017003 -0.345491588 -0.559017122 0.809017003 -0.181635663 -0.587785363 0.809017003 0
+			-0.559017122 0.809017003 0.181635663 -0.475528359 0.809017003 0.345491558 -0.345491558 0.809017003 0.47552833 -0.181635663 0.809017003 0.559017062
+			-1.75173653e-08 0.809017003 0.587785304 0.181635618 0.809017003 0.559017062 0.345491499 0.809017003 0.4755283 0.47552827 0.809017003 0.345491529
+			0.559017003 0.809017003 0.181635633 0.587785244 0.809017003 0 0.431770921 0.891006529 -0.140290871 0.367286295 0.891006529 -0.266849101
+			0.266849101 0.891006529 -0.367286265 0.140290856 0.891006529 -0.431770861 0 0.891006529 -0.453990728 -0.140290856 0.891006529 -0.431770831
+			-0.266849041 0.891006529 -0.367286175 -0.367286146 0.891006529 -0.266849011 -0.431770772 0.891006529 -0.140290812 -0.453990638 0.891006529 0
+			-0.431770772 0.891006529 0.140290812 -0.367286116 0.891006529 0.266848981 -0.266848981 0.891006529 0.367286116 -0.140290812 0.891006529 0.431770712
+			-1.35299718e-08 0.891006529 0.453990579 0.140290782 0.891006529 0.431770682 0.266848922 0.891006529 0.367286086 0.367286056 0.891006529 0.266848952
+			0.431770653 0.891006529 0.140290797 0.453990519 0.891006529 0 0.293892831 0.95105654 -0.0954915658 0.250000179 0.95105654 -0.181635737
+			0.181635737 0.95105654 -0.250000149 0.0954915509 0.95105654 -0.293892801 0 0.95105654 -0.309017152 -0.0954915509 0.95105654 -0.293892771
+			-0.181635708 0.95105654 -0.250000089 -0.250000089 0.95105654 -0.181635693 -0.293892711 0.95105654 -0.0954915285 -0.309017062 0.95105654 0
+			-0.293892711 0.95105654 0.0954915285 -0.25000006 0.95105654 0.181635678 -0.181635678 0.95105654 0.25000006 -0.0954915285 0.95105654 0.293892682
+			-9.20942433e-09 0.95105654 0.309017032 0.0954914987 0.95105654 0.293892652 0.181635633 0.95105654 0.25000003 0.25 0.95105654 0.181635648
+			0.293892652 0.95105654 0.0954915062 0.309017003 0.95105654 0 0.148778126 0.987688363 -0.0483409427 0.126558229 0.987688363 -0.0919499323
+			0.0919499323 0.987688363 -0.126558229 0.0483409353 0.987688363 -0.148778111 0 0.987688363 -0.156434551 -0.0483409353 0.987688363 -0.148778096
+			-0.0919499174 0.987688363 -0.1265582 -0.126558185 0.987688363 -0.0919499025 -0.148778066 0.987688363 -0.0483409241 -0.156434521 0.987688363 0
+			-0.148778066 0.987688363 0.0483409241 -0.126558185 0.987688363 0.091949895 -0.091949895 0.987688363 0.12655817 -0.0483409241 0.987688363 0.148778051
+			-4.6621107e-09 0.987688363 0.156434491 0.0483409092 0.987688363 0.148778036 0.0919498801 0.987688363 0.126558155 0.126558155 0.987688363 0.0919498876
+			0.148778036 0.987688363 0.0483409129 0.156434476 0.987688363 0 0 -1 0 0 1 0] "facevarying float[2] st" [0 0.0500000007 0.0500000007 0.0500000007 0.0500000007 0.100000001 0 0.100000001 0.0500000007 0.0500000007 0.100000001 0.0500000007
+			0.100000001 0.100000001 0.0500000007 0.100000001 0.100000001 0.0500000007 0.150000006 0.0500000007 0.150000006 0.100000001 0.100000001 0.100000001
+			0.150000006 0.0500000007 0.200000003 0.0500000007 0.200000003 0.100000001 0.150000006 0.100000001 0.200000003 0.0500000007 0.25 0.0500000007
+			0.25 0.100000001 0.200000003 0.100000001 0.25 0.0500000007 0.300000012 0.0500000007 0.300000012 0.100000001 0.25 0.100000001
+			0.300000012 0.0500000007 0.350000024 0.0500000007 0.350000024 0.100000001 0.300000012 0.100000001 0.350000024 0.0500000007 0.400000036 0.0500000007
+			0.400000036 0.100000001 0.350000024 0.100000001 0.400000036 0.0500000007 0.450000048 0.0500000007 0.450000048 0.100000001 0.400000036 0.100000001
+			0.450000048 0.0500000007 0.50000006 0.0500000007 0.50000006 0.100000001 0.450000048 0.100000001 0.50000006 0.0500000007 0.550000072 0.0500000007
+			0.550000072 0.100000001 0.50000006 0.100000001 0.550000072 0.0500000007 0.600000083 0.0500000007 0.600000083 0.100000001 0.550000072 0.100000001
+			0.600000083 0.0500000007 0.650000095 0.0500000007 0.650000095 0.100000001 0.600000083 0.100000001 0.650000095 0.0500000007 0.700000107 0.0500000007
+			0.700000107 0.100000001 0.650000095 0.100000001 0.700000107 0.0500000007 0.750000119 0.0500000007 0.750000119 0.100000001 0.700000107 0.100000001
+			0.750000119 0.0500000007 0.800000131 0.0500000007 0.800000131 0.100000001 0.750000119 0.100000001 0.800000131 0.0500000007 0.850000143 0.0500000007
+			0.850000143 0.100000001 0.800000131 0.100000001 0.850000143 0.0500000007 0.900000155 0.0500000007 0.900000155 0.100000001 0.850000143 0.100000001
+			0.900000155 0.0500000007 0.950000167 0.0500000007 0.950000167 0.100000001 0.900000155 0.100000001 0.950000167 0.0500000007 1.00000012 0.0500000007
+			1.00000012 0.100000001 0.950000167 0.100000001 0 0.100000001 0.0500000007 0.100000001 0.0500000007 0.150000006 0 0.150000006
+			0.0500000007 0.100000001 0.100000001 0.100000001 0.100000001 0.150000006 0.0500000007 0.150000006 0.100000001 0.100000001 0.150000006 0.100000001
+			0.150000006 0.150000006 0.100000001 0.150000006 0.150000006 0.100000001 0.200000003 0.100000001 0.200000003 0.150000006 0.150000006 0.150000006
+			0.200000003 0.100000001 0.25 0.100000001 0.25 0.150000006 0.200000003 0.150000006 0.25 0.100000001 0.300000012 0.100000001
+			0.300000012 0.150000006 0.25 0.150000006 0.300000012 0.100000001 0.350000024 0.100000001 0.350000024 0.150000006 0.300000012 0.150000006
+			0.350000024 0.100000001 0.400000036 0.100000001 0.400000036 0.150000006 0.350000024 0.150000006 0.400000036 0.100000001 0.450000048 0.100000001
+			0.450000048 0.150000006 0.400000036 0.150000006 0.450000048 0.100000001 0.50000006 0.100000001 0.50000006 0.150000006 0.450000048 0.150000006
+			0.50000006 0.100000001 0.550000072 0.100000001 0.550000072 0.150000006 0.50000006 0.150000006 0.550000072 0.100000001 0.600000083 0.100000001
+			0.600000083 0.150000006 0.550000072 0.150000006 0.600000083 0.100000001 0.650000095 0.100000001 0.650000095 0.150000006 0.600000083 0.150000006
+			0.650000095 0.100000001 0.700000107 0.100000001 0.700000107 0.150000006 0.650000095 0.150000006 0.700000107 0.100000001 0.750000119 0.100000001
+			0.750000119 0.150000006 0.700000107 0.150000006 0.750000119 0.100000001 0.800000131 0.100000001 0.800000131 0.150000006 0.750000119 0.150000006
+			0.800000131 0.100000001 0.850000143 0.100000001 0.850000143 0.150000006 0.800000131 0.150000006 0.850000143 0.100000001 0.900000155 0.100000001
+			0.900000155 0.150000006 0.850000143 0.150000006 0.900000155 0.100000001 0.950000167 0.100000001 0.950000167 0.150000006 0.900000155 0.150000006
+			0.950000167 0.100000001 1.00000012 0.100000001 1.00000012 0.150000006 0.950000167 0.150000006 0 0.150000006 0.0500000007 0.150000006
+			0.0500000007 0.200000003 0 0.200000003 0.0500000007 0.150000006 0.100000001 0.150000006 0.100000001 0.200000003 0.0500000007 0.200000003
+			0.100000001 0.150000006 0.150000006 0.150000006 0.150000006 0.200000003 0.100000001 0.200000003 0.150000006 0.150000006 0.200000003 0.150000006
+			0.200000003 0.200000003 0.150000006 0.200000003 0.200000003 0.150000006 0.25 0.150000006 0.25 0.200000003 0.200000003 0.200000003
+			0.25 0.150000006 0.300000012 0.150000006 0.300000012 0.200000003 0.25 0.200000003 0.300000012 0.150000006 0.350000024 0.150000006
+			0.350000024 0.200000003 0.300000012 0.200000003 0.350000024 0.150000006 0.400000036 0.150000006 0.400000036 0.200000003 0.350000024 0.200000003
+			0.400000036 0.150000006 0.450000048 0.150000006 0.450000048 0.200000003 0.400000036 0.200000003 0.450000048 0.150000006 0.50000006 0.150000006
+			0.50000006 0.200000003 0.450000048 0.200000003 0.50000006 0.150000006 0.550000072 0.150000006 0.550000072 0.200000003 0.50000006 0.200000003
+			0.550000072 0.150000006 0.600000083 0.150000006 0.600000083 0.200000003 0.550000072 0.200000003 0.600000083 0.150000006 0.650000095 0.150000006
+			0.650000095 0.200000003 0.600000083 0.200000003 0.650000095 0.150000006 0.700000107 0.150000006 0.700000107 0.200000003 0.650000095 0.200000003
+			0.700000107 0.150000006 0.750000119 0.150000006 0.750000119 0.200000003 0.700000107 0.200000003 0.750000119 0.150000006 0.800000131 0.150000006
+			0.800000131 0.200000003 0.750000119 0.200000003 0.800000131 0.150000006 0.850000143 0.150000006 0.850000143 0.200000003 0.800000131 0.200000003
+			0.850000143 0.150000006 0.900000155 0.150000006 0.900000155 0.200000003 0.850000143 0.200000003 0.900000155 0.150000006 0.950000167 0.150000006
+			0.950000167 0.200000003 0.900000155 0.200000003 0.950000167 0.150000006 1.00000012 0.150000006 1.00000012 0.200000003 0.950000167 0.200000003
+			0 0.200000003 0.0500000007 0.200000003 0.0500000007 0.25 0 0.25 0.0500000007 0.200000003 0.100000001 0.200000003
+			0.100000001 0.25 0.0500000007 0.25 0.100000001 0.200000003 0.150000006 0.200000003 0.150000006 0.25 0.100000001 0.25
+			0.150000006 0.200000003 0.200000003 0.200000003 0.200000003 0.25 0.150000006 0.25 0.200000003 0.200000003 0.25 0.200000003
+			0.25 0.25 0.200000003 0.25 0.25 0.200000003 0.300000012 0.200000003 0.300000012 0.25 0.25 0.25
+			0.300000012 0.200000003 0.350000024 0.200000003 0.350000024 0.25 0.300000012 0.25 0.350000024 0.200000003 0.400000036 0.200000003
+			0.400000036 0.25 0.350000024 0.25 0.400000036 0.200000003 0.450000048 0.200000003 0.450000048 0.25 0.400000036 0.25
+			0.450000048 0.200000003 0.50000006 0.200000003 0.50000006 0.25 0.450000048 0.25 0.50000006 0.200000003 0.550000072 0.200000003
+			0.550000072 0.25 0.50000006 0.25 0.550000072 0.200000003 0.600000083 0.200000003 0.600000083 0.25 0.550000072 0.25
+			0.600000083 0.200000003 0.650000095 0.200000003 0.650000095 0.25 0.600000083 0.25 0.650000095 0.200000003 0.700000107 0.200000003
+			0.700000107 0.25 0.650000095 0.25 0.700000107 0.200000003 0.750000119 0.200000003 0.750000119 0.25 0.700000107 0.25
+			0.750000119 0.200000003 0.800000131 0.200000003 0.800000131 0.25 0.750000119 0.25 0.800000131 0.200000003 0.850000143 0.200000003
+			0.850000143 0.25 0.800000131 0.25 0.850000143 0.200000003 0.900000155 0.200000003 0.900000155 0.25 0.850000143 0.25
+			0.900000155 0.200000003 0.950000167 0.200000003 0.950000167 0.25 0.900000155 0.25 0.950000167 0.200000003 1.00000012 0.200000003
+			1.00000012 0.25 0.950000167 0.25 0 0.25 0.0500000007 0.25 0.0500000007 0.300000012 0 0.300000012
+			0.0500000007 0.25 0.100000001 0.25 0.100000001 0.300000012 0.0500000007 0.300000012 0.100000001 0.25 0.150000006 0.25
+			0.150000006 0.300000012 0.100000001 0.300000012 0.150000006 0.25 0.200000003 0.25 0.200000003 0.300000012 0.150000006 0.300000012
+			0.200000003 0.25 0.25 0.25 0.25 0.300000012 0.200000003 0.300000012 0.25 0.25 0.300000012 0.25
+			0.300000012 0.300000012 0.25 0.300000012 0.300000012 0.25 0.350000024 0.25 0.350000024 0.300000012 0.300000012 0.300000012
+			0.350000024 0.25 0.400000036 0.25 0.400000036 0.300000012 0.350000024 0.300000012 0.400000036 0.25 0.450000048 0.25
+			0.450000048 0.300000012 0.400000036 0.300000012 0.450000048 0.25 0.50000006 0.25 0.50000006 0.300000012 0.450000048 0.300000012
+			0.50000006 0.25 0.550000072 0.25 0.550000072 0.300000012 0.50000006 0.300000012 0.550000072 0.25 0.600000083 0.25
+			0.600000083 0.300000012 0.550000072 0.300000012 0.600000083 0.25 0.650000095 0.25 0.650000095 0.300000012 0.600000083 0.300000012
+			0.650000095 0.25 0.700000107 0.25 0.700000107 0.300000012 0.650000095 0.300000012 0.700000107 0.25 0.750000119 0.25
+			0.750000119 0.300000012 0.700000107 0.300000012 0.750000119 0.25 0.800000131 0.25 0.800000131 0.300000012 0.750000119 0.300000012
+			0.800000131 0.25 0.850000143 0.25 0.850000143 0.300000012 0.800000131 0.300000012 0.850000143 0.25 0.900000155 0.25
+			0.900000155 0.300000012 0.850000143 0.300000012 0.900000155 0.25 0.950000167 0.25 0.950000167 0.300000012 0.900000155 0.300000012
+			0.950000167 0.25 1.00000012 0.25 1.00000012 0.300000012 0.950000167 0.300000012 0 0.300000012 0.0500000007 0.300000012
+			0.0500000007 0.350000024 0 0.350000024 0.0500000007 0.300000012 0.100000001 0.300000012 0.100000001 0.350000024 0.0500000007 0.350000024
+			0.100000001 0.300000012 0.150000006 0.300000012 0.150000006 0.350000024 0.100000001 0.350000024 0.150000006 0.300000012 0.200000003 0.300000012
+			0.200000003 0.350000024 0.150000006 0.350000024 0.200000003 0.300000012 0.25 0.300000012 0.25 0.350000024 0.200000003 0.350000024
+			0.25 0.300000012 0.300000012 0.300000012 0.300000012 0.350000024 0.25 0.350000024 0.300000012 0.300000012 0.350000024 0.300000012
+			0.350000024 0.350000024 0.300000012 0.350000024 0.350000024 0.300000012 0.400000036 0.300000012 0.400000036 0.350000024 0.350000024 0.350000024
+			0.400000036 0.300000012 0.450000048 0.300000012 0.450000048 0.350000024 0.400000036 0.350000024 0.450000048 0.300000012 0.50000006 0.300000012
+			0.50000006 0.350000024 0.450000048 0.350000024 0.50000006 0.300000012 0.550000072 0.300000012 0.550000072 0.350000024 0.50000006 0.350000024
+			0.550000072 0.300000012 0.600000083 0.300000012 0.600000083 0.350000024 0.550000072 0.350000024 0.600000083 0.300000012 0.650000095 0.300000012
+			0.650000095 0.350000024 0.600000083 0.350000024 0.650000095 0.300000012 0.700000107 0.300000012 0.700000107 0.350000024 0.650000095 0.350000024
+			0.700000107 0.300000012 0.750000119 0.300000012 0.750000119 0.350000024 0.700000107 0.350000024 0.750000119 0.300000012 0.800000131 0.300000012
+			0.800000131 0.350000024 0.750000119 0.350000024 0.800000131 0.300000012 0.850000143 0.300000012 0.850000143 0.350000024 0.800000131 0.350000024
+			0.850000143 0.300000012 0.900000155 0.300000012 0.900000155 0.350000024 0.850000143 0.350000024 0.900000155 0.300000012 0.950000167 0.300000012
+			0.950000167 0.350000024 0.900000155 0.350000024 0.950000167 0.300000012 1.00000012 0.300000012 1.00000012 0.350000024 0.950000167 0.350000024
+			0 0.350000024 0.0500000007 0.350000024 0.0500000007 0.400000036 0 0.400000036 0.0500000007 0.350000024 0.100000001 0.350000024
+			0.100000001 0.400000036 0.0500000007 0.400000036 0.100000001 0.350000024 0.150000006 0.350000024 0.150000006 0.400000036 0.100000001 0.400000036
+			0.150000006 0.350000024 0.200000003 0.350000024 0.200000003 0.400000036 0.150000006 0.400000036 0.200000003 0.350000024 0.25 0.350000024
+			0.25 0.400000036 0.200000003 0.400000036 0.25 0.350000024 0.300000012 0.350000024 0.300000012 0.400000036 0.25 0.400000036
+			0.300000012 0.350000024 0.350000024 0.350000024 0.350000024 0.400000036 0.300000012 0.400000036 0.350000024 0.350000024 0.400000036 0.350000024
+			0.400000036 0.400000036 0.350000024 0.400000036 0.400000036 0.350000024 0.450000048 0.350000024 0.450000048 0.400000036 0.400000036 0.400000036
+			0.450000048 0.350000024 0.50000006 0.350000024 0.50000006 0.400000036 0.450000048 0.400000036 0.50000006 0.350000024 0.550000072 0.350000024
+			0.550000072 0.400000036 0.50000006 0.400000036 0.550000072 0.350000024 0.600000083 0.350000024 0.600000083 0.400000036 0.550000072 0.400000036
+			0.600000083 0.350000024 0.650000095 0.350000024 0.650000095 0.400000036 0.600000083 0.400000036 0.650000095 0.350000024 0.700000107 0.350000024
+			0.700000107 0.400000036 0.650000095 0.400000036 0.700000107 0.350000024 0.750000119 0.350000024 0.750000119 0.400000036 0.700000107 0.400000036
+			0.750000119 0.350000024 0.800000131 0.350000024 0.800000131 0.400000036 0.750000119 0.400000036 0.800000131 0.350000024 0.850000143 0.350000024
+			0.850000143 0.400000036 0.800000131 0.400000036 0.850000143 0.350000024 0.900000155 0.350000024 0.900000155 0.400000036 0.850000143 0.400000036
+			0.900000155 0.350000024 0.950000167 0.350000024 0.950000167 0.400000036 0.900000155 0.400000036 0.950000167 0.350000024 1.00000012 0.350000024
+			1.00000012 0.400000036 0.950000167 0.400000036 0 0.400000036 0.0500000007 0.400000036 0.0500000007 0.450000048 0 0.450000048
+			0.0500000007 0.400000036 0.100000001 0.400000036 0.100000001 0.450000048 0.0500000007 0.450000048 0.100000001 0.400000036 0.150000006 0.400000036
+			0.150000006 0.450000048 0.100000001 0.450000048 0.150000006 0.400000036 0.200000003 0.400000036 0.200000003 0.450000048 0.150000006 0.450000048
+			0.200000003 0.400000036 0.25 0.400000036 0.25 0.450000048 0.200000003 0.450000048 0.25 0.400000036 0.300000012 0.400000036
+			0.300000012 0.450000048 0.25 0.450000048 0.300000012 0.400000036 0.350000024 0.400000036 0.350000024 0.450000048 0.300000012 0.450000048
+			0.350000024 0.400000036 0.400000036 0.400000036 0.400000036 0.450000048 0.350000024 0.450000048 0.400000036 0.400000036 0.450000048 0.400000036
+			0.450000048 0.450000048 0.400000036 0.450000048 0.450000048 0.400000036 0.50000006 0.400000036 0.50000006 0.450000048 0.450000048 0.450000048
+			0.50000006 0.400000036 0.550000072 0.400000036 0.550000072 0.450000048 0.50000006 0.450000048 0.550000072 0.400000036 0.600000083 0.400000036
+			0.600000083 0.450000048 0.550000072 0.450000048 0.600000083 0.400000036 0.650000095 0.400000036 0.650000095 0.450000048 0.600000083 0.450000048
+			0.650000095 0.400000036 0.700000107 0.400000036 0.700000107 0.450000048 0.650000095 0.450000048 0.700000107 0.400000036 0.750000119 0.400000036
+			0.750000119 0.450000048 0.700000107 0.450000048 0.750000119 0.400000036 0.800000131 0.400000036 0.800000131 0.450000048 0.750000119 0.450000048
+			0.800000131 0.400000036 0.850000143 0.400000036 0.850000143 0.450000048 0.800000131 0.450000048 0.850000143 0.400000036 0.900000155 0.400000036
+			0.900000155 0.450000048 0.850000143 0.450000048 0.900000155 0.400000036 0.950000167 0.400000036 0.950000167 0.450000048 0.900000155 0.450000048
+			0.950000167 0.400000036 1.00000012 0.400000036 1.00000012 0.450000048 0.950000167 0.450000048 0 0.450000048 0.0500000007 0.450000048
+			0.0500000007 0.50000006 0 0.50000006 0.0500000007 0.450000048 0.100000001 0.450000048 0.100000001 0.50000006 0.0500000007 0.50000006
+			0.100000001 0.450000048 0.150000006 0.450000048 0.150000006 0.50000006 0.100000001 0.50000006 0.150000006 0.450000048 0.200000003 0.450000048
+			0.200000003 0.50000006 0.150000006 0.50000006 0.200000003 0.450000048 0.25 0.450000048 0.25 0.50000006 0.200000003 0.50000006
+			0.25 0.450000048 0.300000012 0.450000048 0.300000012 0.50000006 0.25 0.50000006 0.300000012 0.450000048 0.350000024 0.450000048
+			0.350000024 0.50000006 0.300000012 0.50000006 0.350000024 0.450000048 0.400000036 0.450000048 0.400000036 0.50000006 0.350000024 0.50000006
+			0.400000036 0.450000048 0.450000048 0.450000048 0.450000048 0.50000006 0.400000036 0.50000006 0.450000048 0.450000048 0.50000006 0.450000048
+			0.50000006 0.50000006 0.450000048 0.50000006 0.50000006 0.450000048 0.550000072 0.450000048 0.550000072 0.50000006 0.50000006 0.50000006
+			0.550000072 0.450000048 0.600000083 0.450000048 0.600000083 0.50000006 0.550000072 0.50000006 0.600000083 0.450000048 0.650000095 0.450000048
+			0.650000095 0.50000006 0.600000083 0.50000006 0.650000095 0.450000048 0.700000107 0.450000048 0.700000107 0.50000006 0.650000095 0.50000006
+			0.700000107 0.450000048 0.750000119 0.450000048 0.750000119 0.50000006 0.700000107 0.50000006 0.750000119 0.450000048 0.800000131 0.450000048
+			0.800000131 0.50000006 0.750000119 0.50000006 0.800000131 0.450000048 0.850000143 0.450000048 0.850000143 0.50000006 0.800000131 0.50000006
+			0.850000143 0.450000048 0.900000155 0.450000048 0.900000155 0.50000006 0.850000143 0.50000006 0.900000155 0.450000048 0.950000167 0.450000048
+			0.950000167 0.50000006 0.900000155 0.50000006 0.950000167 0.450000048 1.00000012 0.450000048 1.00000012 0.50000006 0.950000167 0.50000006
+			0 0.50000006 0.0500000007 0.50000006 0.0500000007 0.550000072 0 0.550000072 0.0500000007 0.50000006 0.100000001 0.50000006
+			0.100000001 0.550000072 0.0500000007 0.550000072 0.100000001 0.50000006 0.150000006 0.50000006 0.150000006 0.550000072 0.100000001 0.550000072
+			0.150000006 0.50000006 0.200000003 0.50000006 0.200000003 0.550000072 0.150000006 0.550000072 0.200000003 0.50000006 0.25 0.50000006
+			0.25 0.550000072 0.200000003 0.550000072 0.25 0.50000006 0.300000012 0.50000006 0.300000012 0.550000072 0.25 0.550000072
+			0.300000012 0.50000006 0.350000024 0.50000006 0.350000024 0.550000072 0.300000012 0.550000072 0.350000024 0.50000006 0.400000036 0.50000006
+			0.400000036 0.550000072 0.350000024 0.550000072 0.400000036 0.50000006 0.450000048 0.50000006 0.450000048 0.550000072 0.400000036 0.550000072
+			0.450000048 0.50000006 0.50000006 0.50000006 0.50000006 0.550000072 0.450000048 0.550000072 0.50000006 0.50000006 0.550000072 0.50000006
+			0.550000072 0.550000072 0.50000006 0.550000072 0.550000072 0.50000006 0.600000083 0.50000006 0.600000083 0.550000072 0.550000072 0.550000072
+			0.600000083 0.50000006 0.650000095 0.50000006 0.650000095 0.550000072 0.600000083 0.550000072 0.650000095 0.50000006 0.700000107 0.50000006
+			0.700000107 0.550000072 0.650000095 0.550000072 0.700000107 0.50000006 0.750000119 0.50000006 0.750000119 0.550000072 0.700000107 0.550000072
+			0.750000119 0.50000006 0.800000131 0.50000006 0.800000131 0.550000072 0.750000119 0.550000072 0.800000131 0.50000006 0.850000143 0.50000006
+			0.850000143 0.550000072 0.800000131 0.550000072 0.850000143 0.50000006 0.900000155 0.50000006 0.900000155 0.550000072 0.850000143 0.550000072
+			0.900000155 0.50000006 0.950000167 0.50000006 0.950000167 0.550000072 0.900000155 0.550000072 0.950000167 0.50000006 1.00000012 0.50000006
+			1.00000012 0.550000072 0.950000167 0.550000072 0 0.550000072 0.0500000007 0.550000072 0.0500000007 0.600000083 0 0.600000083
+			0.0500000007 0.550000072 0.100000001 0.550000072 0.100000001 0.600000083 0.0500000007 0.600000083 0.100000001 0.550000072 0.150000006 0.550000072
+			0.150000006 0.600000083 0.100000001 0.600000083 0.150000006 0.550000072 0.200000003 0.550000072 0.200000003 0.600000083 0.150000006 0.600000083
+			0.200000003 0.550000072 0.25 0.550000072 0.25 0.600000083 0.200000003 0.600000083 0.25 0.550000072 0.300000012 0.550000072
+			0.300000012 0.600000083 0.25 0.600000083 0.300000012 0.550000072 0.350000024 0.550000072 0.350000024 0.600000083 0.300000012 0.600000083
+			0.350000024 0.550000072 0.400000036 0.550000072 0.400000036 0.600000083 0.350000024 0.600000083 0.400000036 0.550000072 0.450000048 0.550000072
+			0.450000048 0.600000083 0.400000036 0.600000083 0.450000048 0.550000072 0.50000006 0.550000072 0.50000006 0.600000083 0.450000048 0.600000083
+			0.50000006 0.550000072 0.550000072 0.550000072 0.550000072 0.600000083 0.50000006 0.600000083 0.550000072 0.550000072 0.600000083 0.550000072
+			0.600000083 0.600000083 0.550000072 0.600000083 0.600000083 0.550000072 0.650000095 0.550000072 0.650000095 0.600000083 0.600000083 0.600000083
+			0.650000095 0.550000072 0.700000107 0.550000072 0.700000107 0.600000083 0.650000095 0.600000083 0.700000107 0.550000072 0.750000119 0.550000072
+			0.750000119 0.600000083 0.700000107 0.600000083 0.750000119 0.550000072 0.800000131 0.550000072 0.800000131 0.600000083 0.750000119 0.600000083
+			0.800000131 0.550000072 0.850000143 0.550000072 0.850000143 0.600000083 0.800000131 0.600000083 0.850000143 0.550000072 0.900000155 0.550000072
+			0.900000155 0.600000083 0.850000143 0.600000083 0.900000155 0.550000072 0.950000167 0.550000072 0.950000167 0.600000083 0.900000155 0.600000083
+			0.950000167 0.550000072 1.00000012 0.550000072 1.00000012 0.600000083 0.950000167 0.600000083 0 0.600000083 0.0500000007 0.600000083
+			0.0500000007 0.650000095 0 0.650000095 0.0500000007 0.600000083 0.100000001 0.600000083 0.100000001 0.650000095 0.0500000007 0.650000095
+			0.100000001 0.600000083 0.150000006 0.600000083 0.150000006 0.650000095 0.100000001 0.650000095 0.150000006 0.600000083 0.200000003 0.600000083
+			0.200000003 0.650000095 0.150000006 0.650000095 0.200000003 0.600000083 0.25 0.600000083 0.25 0.650000095 0.200000003 0.650000095
+			0.25 0.600000083 0.300000012 0.600000083 0.300000012 0.650000095 0.25 0.650000095 0.300000012 0.600000083 0.350000024 0.600000083
+			0.350000024 0.650000095 0.300000012 0.650000095 0.350000024 0.600000083 0.400000036 0.600000083 0.400000036 0.650000095 0.350000024 0.650000095
+			0.400000036 0.600000083 0.450000048 0.600000083 0.450000048 0.650000095 0.400000036 0.650000095 0.450000048 0.600000083 0.50000006 0.600000083
+			0.50000006 0.650000095 0.450000048 0.650000095 0.50000006 0.600000083 0.550000072 0.600000083 0.550000072 0.650000095 0.50000006 0.650000095
+			0.550000072 0.600000083 0.600000083 0.600000083 0.600000083 0.650000095 0.550000072 0.650000095 0.600000083 0.600000083 0.650000095 0.600000083
+			0.650000095 0.650000095 0.600000083 0.650000095 0.650000095 0.600000083 0.700000107 0.600000083 0.700000107 0.650000095 0.650000095 0.650000095
+			0.700000107 0.600000083 0.750000119 0.600000083 0.750000119 0.650000095 0.700000107 0.650000095 0.750000119 0.600000083 0.800000131 0.600000083
+			0.800000131 0.650000095 0.750000119 0.650000095 0.800000131 0.600000083 0.850000143 0.600000083 0.850000143 0.650000095 0.800000131 0.650000095
+			0.850000143 0.600000083 0.900000155 0.600000083 0.900000155 0.650000095 0.850000143 0.650000095 0.900000155 0.600000083 0.950000167 0.600000083
+			0.950000167 0.650000095 0.900000155 0.650000095 0.950000167 0.600000083 1.00000012 0.600000083 1.00000012 0.650000095 0.950000167 0.650000095
+			0 0.650000095 0.0500000007 0.650000095 0.0500000007 0.700000107 0 0.700000107 0.0500000007 0.650000095 0.100000001 0.650000095
+			0.100000001 0.700000107 0.0500000007 0.700000107 0.100000001 0.650000095 0.150000006 0.650000095 0.150000006 0.700000107 0.100000001 0.700000107
+			0.150000006 0.650000095 0.200000003 0.650000095 0.200000003 0.700000107 0.150000006 0.700000107 0.200000003 0.650000095 0.25 0.650000095
+			0.25 0.700000107 0.200000003 0.700000107 0.25 0.650000095 0.300000012 0.650000095 0.300000012 0.700000107 0.25 0.700000107
+			0.300000012 0.650000095 0.350000024 0.650000095 0.350000024 0.700000107 0.300000012 0.700000107 0.350000024 0.650000095 0.400000036 0.650000095
+			0.400000036 0.700000107 0.350000024 0.700000107 0.400000036 0.650000095 0.450000048 0.650000095 0.450000048 0.700000107 0.400000036 0.700000107
+			0.450000048 0.650000095 0.50000006 0.650000095 0.50000006 0.700000107 0.450000048 0.700000107 0.50000006 0.650000095 0.550000072 0.650000095
+			0.550000072 0.700000107 0.50000006 0.700000107 0.550000072 0.650000095 0.600000083 0.650000095 0.600000083 0.700000107 0.550000072 0.700000107
+			0.600000083 0.650000095 0.650000095 0.650000095 0.650000095 0.700000107 0.600000083 0.700000107 0.650000095 0.650000095 0.700000107 0.650000095
+			0.700000107 0.700000107 0.650000095 0.700000107 0.700000107 0.650000095 0.750000119 0.650000095 0.750000119 0.700000107 0.700000107 0.700000107
+			0.750000119 0.650000095 0.800000131 0.650000095 0.800000131 0.700000107 0.750000119 0.700000107 0.800000131 0.650000095 0.850000143 0.650000095
+			0.850000143 0.700000107 0.800000131 0.700000107 0.850000143 0.650000095 0.900000155 0.650000095 0.900000155 0.700000107 0.850000143 0.700000107
+			0.900000155 0.650000095 0.950000167 0.650000095 0.950000167 0.700000107 0.900000155 0.700000107 0.950000167 0.650000095 1.00000012 0.650000095
+			1.00000012 0.700000107 0.950000167 0.700000107 0 0.700000107 0.0500000007 0.700000107 0.0500000007 0.750000119 0 0.750000119
+			0.0500000007 0.700000107 0.100000001 0.700000107 0.100000001 0.750000119 0.0500000007 0.750000119 0.100000001 0.700000107 0.150000006 0.700000107
+			0.150000006 0.750000119 0.100000001 0.750000119 0.150000006 0.700000107 0.200000003 0.700000107 0.200000003 0.750000119 0.150000006 0.750000119
+			0.200000003 0.700000107 0.25 0.700000107 0.25 0.750000119 0.200000003 0.750000119 0.25 0.700000107 0.300000012 0.700000107
+			0.300000012 0.750000119 0.25 0.750000119 0.300000012 0.700000107 0.350000024 0.700000107 0.350000024 0.750000119 0.300000012 0.750000119
+			0.350000024 0.700000107 0.400000036 0.700000107 0.400000036 0.750000119 0.350000024 0.750000119 0.400000036 0.700000107 0.450000048 0.700000107
+			0.450000048 0.750000119 0.400000036 0.750000119 0.450000048 0.700000107 0.50000006 0.700000107 0.50000006 0.750000119 0.450000048 0.750000119
+			0.50000006 0.700000107 0.550000072 0.700000107 0.550000072 0.750000119 0.50000006 0.750000119 0.550000072 0.700000107 0.600000083 0.700000107
+			0.600000083 0.750000119 0.550000072 0.750000119 0.600000083 0.700000107 0.650000095 0.700000107 0.650000095 0.750000119 0.600000083 0.750000119
+			0.650000095 0.700000107 0.700000107 0.700000107 0.700000107 0.750000119 0.650000095 0.750000119 0.700000107 0.700000107 0.750000119 0.700000107
+			0.750000119 0.750000119 0.700000107 0.750000119 0.750000119 0.700000107 0.800000131 0.700000107 0.800000131 0.750000119 0.750000119 0.750000119
+			0.800000131 0.700000107 0.850000143 0.700000107 0.850000143 0.750000119 0.800000131 0.750000119 0.850000143 0.700000107 0.900000155 0.700000107
+			0.900000155 0.750000119 0.850000143 0.750000119 0.900000155 0.700000107 0.950000167 0.700000107 0.950000167 0.750000119 0.900000155 0.750000119
+			0.950000167 0.700000107 1.00000012 0.700000107 1.00000012 0.750000119 0.950000167 0.750000119 0 0.750000119 0.0500000007 0.750000119
+			0.0500000007 0.800000131 0 0.800000131 0.0500000007 0.750000119 0.100000001 0.750000119 0.100000001 0.800000131 0.0500000007 0.800000131
+			0.100000001 0.750000119 0.150000006 0.750000119 0.150000006 0.800000131 0.100000001 0.800000131 0.150000006 0.750000119 0.200000003 0.750000119
+			0.200000003 0.800000131 0.150000006 0.800000131 0.200000003 0.750000119 0.25 0.750000119 0.25 0.800000131 0.200000003 0.800000131
+			0.25 0.750000119 0.300000012 0.750000119 0.300000012 0.800000131 0.25 0.800000131 0.300000012 0.750000119 0.350000024 0.750000119
+			0.350000024 0.800000131 0.300000012 0.800000131 0.350000024 0.750000119 0.400000036 0.750000119 0.400000036 0.800000131 0.350000024 0.800000131
+			0.400000036 0.750000119 0.450000048 0.750000119 0.450000048 0.800000131 0.400000036 0.800000131 0.450000048 0.750000119 0.50000006 0.750000119
+			0.50000006 0.800000131 0.450000048 0.800000131 0.50000006 0.750000119 0.550000072 0.750000119 0.550000072 0.800000131 0.50000006 0.800000131
+			0.550000072 0.750000119 0.600000083 0.750000119 0.600000083 0.800000131 0.550000072 0.800000131 0.600000083 0.750000119 0.650000095 0.750000119
+			0.650000095 0.800000131 0.600000083 0.800000131 0.650000095 0.750000119 0.700000107 0.750000119 0.700000107 0.800000131 0.650000095 0.800000131
+			0.700000107 0.750000119 0.750000119 0.750000119 0.750000119 0.800000131 0.700000107 0.800000131 0.750000119 0.750000119 0.800000131 0.750000119
+			0.800000131 0.800000131 0.750000119 0.800000131 0.800000131 0.750000119 0.850000143 0.750000119 0.850000143 0.800000131 0.800000131 0.800000131
+			0.850000143 0.750000119 0.900000155 0.750000119 0.900000155 0.800000131 0.850000143 0.800000131 0.900000155 0.750000119 0.950000167 0.750000119
+			0.950000167 0.800000131 0.900000155 0.800000131 0.950000167 0.750000119 1.00000012 0.750000119 1.00000012 0.800000131 0.950000167 0.800000131
+			0 0.800000131 0.0500000007 0.800000131 0.0500000007 0.850000143 0 0.850000143 0.0500000007 0.800000131 0.100000001 0.800000131
+			0.100000001 0.850000143 0.0500000007 0.850000143 0.100000001 0.800000131 0.150000006 0.800000131 0.150000006 0.850000143 0.100000001 0.850000143
+			0.150000006 0.800000131 0.200000003 0.800000131 0.200000003 0.850000143 0.150000006 0.850000143 0.200000003 0.800000131 0.25 0.800000131
+			0.25 0.850000143 0.200000003 0.850000143 0.25 0.800000131 0.300000012 0.800000131 0.300000012 0.850000143 0.25 0.850000143
+			0.300000012 0.800000131 0.350000024 0.800000131 0.350000024 0.850000143 0.300000012 0.850000143 0.350000024 0.800000131 0.400000036 0.800000131
+			0.400000036 0.850000143 0.350000024 0.850000143 0.400000036 0.800000131 0.450000048 0.800000131 0.450000048 0.850000143 0.400000036 0.850000143
+			0.450000048 0.800000131 0.50000006 0.800000131 0.50000006 0.850000143 0.450000048 0.850000143 0.50000006 0.800000131 0.550000072 0.800000131
+			0.550000072 0.850000143 0.50000006 0.850000143 0.550000072 0.800000131 0.600000083 0.800000131 0.600000083 0.850000143 0.550000072 0.850000143
+			0.600000083 0.800000131 0.650000095 0.800000131 0.650000095 0.850000143 0.600000083 0.850000143 0.650000095 0.800000131 0.700000107 0.800000131
+			0.700000107 0.850000143 0.650000095 0.850000143 0.700000107 0.800000131 0.750000119 0.800000131 0.750000119 0.850000143 0.700000107 0.850000143
+			0.750000119 0.800000131 0.800000131 0.800000131 0.800000131 0.850000143 0.750000119 0.850000143 0.800000131 0.800000131 0.850000143 0.800000131
+			0.850000143 0.850000143 0.800000131 0.850000143 0.850000143 0.800000131 0.900000155 0.800000131 0.900000155 0.850000143 0.850000143 0.850000143
+			0.900000155 0.800000131 0.950000167 0.800000131 0.950000167 0.850000143 0.900000155 0.850000143 0.950000167 0.800000131 1.00000012 0.800000131
+			1.00000012 0.850000143 0.950000167 0.850000143 0 0.850000143 0.0500000007 0.850000143 0.0500000007 0.900000155 0 0.900000155
+			0.0500000007 0.850000143 0.100000001 0.850000143 0.100000001 0.900000155 0.0500000007 0.900000155 0.100000001 0.850000143 0.150000006 0.850000143
+			0.150000006 0.900000155 0.100000001 0.900000155 0.150000006 0.850000143 0.200000003 0.850000143 0.200000003 0.900000155 0.150000006 0.900000155
+			0.200000003 0.850000143 0.25 0.850000143 0.25 0.900000155 0.200000003 0.900000155 0.25 0.850000143 0.300000012 0.850000143
+			0.300000012 0.900000155 0.25 0.900000155 0.300000012 0.850000143 0.350000024 0.850000143 0.350000024 0.900000155 0.300000012 0.900000155
+			0.350000024 0.850000143 0.400000036 0.850000143 0.400000036 0.900000155 0.350000024 0.900000155 0.400000036 0.850000143 0.450000048 0.850000143
+			0.450000048 0.900000155 0.400000036 0.900000155 0.450000048 0.850000143 0.50000006 0.850000143 0.50000006 0.900000155 0.450000048 0.900000155
+			0.50000006 0.850000143 0.550000072 0.850000143 0.550000072 0.900000155 0.50000006 0.900000155 0.550000072 0.850000143 0.600000083 0.850000143
+			0.600000083 0.900000155 0.550000072 0.900000155 0.600000083 0.850000143 0.650000095 0.850000143 0.650000095 0.900000155 0.600000083 0.900000155
+			0.650000095 0.850000143 0.700000107 0.850000143 0.700000107 0.900000155 0.650000095 0.900000155 0.700000107 0.850000143 0.750000119 0.850000143
+			0.750000119 0.900000155 0.700000107 0.900000155 0.750000119 0.850000143 0.800000131 0.850000143 0.800000131 0.900000155 0.750000119 0.900000155
+			0.800000131 0.850000143 0.850000143 0.850000143 0.850000143 0.900000155 0.800000131 0.900000155 0.850000143 0.850000143 0.900000155 0.850000143
+			0.900000155 0.900000155 0.850000143 0.900000155 0.900000155 0.850000143 0.950000167 0.850000143 0.950000167 0.900000155 0.900000155 0.900000155
+			0.950000167 0.850000143 1.00000012 0.850000143 1.00000012 0.900000155 0.950000167 0.900000155 0 0.900000155 0.0500000007 0.900000155
+			0.0500000007 0.950000167 0 0.950000167 0.0500000007 0.900000155 0.100000001 0.900000155 0.100000001 0.950000167 0.0500000007 0.950000167
+			0.100000001 0.900000155 0.150000006 0.900000155 0.150000006 0.950000167 0.100000001 0.950000167 0.150000006 0.900000155 0.200000003 0.900000155
+			0.200000003 0.950000167 0.150000006 0.950000167 0.200000003 0.900000155 0.25 0.900000155 0.25 0.950000167 0.200000003 0.950000167
+			0.25 0.900000155 0.300000012 0.900000155 0.300000012 0.950000167 0.25 0.950000167 0.300000012 0.900000155 0.350000024 0.900000155
+			0.350000024 0.950000167 0.300000012 0.950000167 0.350000024 0.900000155 0.400000036 0.900000155 0.400000036 0.950000167 0.350000024 0.950000167
+			0.400000036 0.900000155 0.450000048 0.900000155 0.450000048 0.950000167 0.400000036 0.950000167 0.450000048 0.900000155 0.50000006 0.900000155
+			0.50000006 0.950000167 0.450000048 0.950000167 0.50000006 0.900000155 0.550000072 0.900000155 0.550000072 0.950000167 0.50000006 0.950000167
+			0.550000072 0.900000155 0.600000083 0.900000155 0.600000083 0.950000167 0.550000072 0.950000167 0.600000083 0.900000155 0.650000095 0.900000155
+			0.650000095 0.950000167 0.600000083 0.950000167 0.650000095 0.900000155 0.700000107 0.900000155 0.700000107 0.950000167 0.650000095 0.950000167
+			0.700000107 0.900000155 0.750000119 0.900000155 0.750000119 0.950000167 0.700000107 0.950000167 0.750000119 0.900000155 0.800000131 0.900000155
+			0.800000131 0.950000167 0.750000119 0.950000167 0.800000131 0.900000155 0.850000143 0.900000155 0.850000143 0.950000167 0.800000131 0.950000167
+			0.850000143 0.900000155 0.900000155 0.900000155 0.900000155 0.950000167 0.850000143 0.950000167 0.900000155 0.900000155 0.950000167 0.900000155
+			0.950000167 0.950000167 0.900000155 0.950000167 0.950000167 0.900000155 1.00000012 0.900000155 1.00000012 0.950000167 0.950000167 0.950000167
+			0.0500000007 0.0500000007 0 0.0500000007 0.0250000004 0 0.100000001 0.0500000007 0.0500000007 0.0500000007 0.075000003 0
+			0.150000006 0.0500000007 0.100000001 0.0500000007 0.125 0 0.200000003 0.0500000007 0.150000006 0.0500000007 0.175000012 0
+			0.25 0.0500000007 0.200000003 0.0500000007 0.225000009 0 0.300000012 0.0500000007 0.25 0.0500000007 0.275000006 0
+			0.350000024 0.0500000007 0.300000012 0.0500000007 0.325000018 0 0.400000036 0.0500000007 0.350000024 0.0500000007 0.375 0
+			0.450000048 0.0500000007 0.400000036 0.0500000007 0.425000012 0 0.50000006 0.0500000007 0.450000048 0.0500000007 0.475000024 0
+			0.550000072 0.0500000007 0.50000006 0.0500000007 0.524999976 0 0.600000083 0.0500000007 0.550000072 0.0500000007 0.574999988 0
+			0.650000095 0.0500000007 0.600000083 0.0500000007 0.625 0 0.700000107 0.0500000007 0.650000095 0.0500000007 0.675000012 0
+			0.750000119 0.0500000007 0.700000107 0.0500000007 0.724999964 0 0.800000131 0.0500000007 0.750000119 0.0500000007 0.774999976 0
+			0.850000143 0.0500000007 0.800000131 0.0500000007 0.824999988 0 0.900000155 0.0500000007 0.850000143 0.0500000007 0.875 0
+			0.950000167 0.0500000007 0.900000155 0.0500000007 0.925000012 0 1.00000012 0.0500000007 0.950000167 0.0500000007 0.974999964 0
+			0 0.950000167 0.0500000007 0.950000167 0.0250000004 1 0.0500000007 0.950000167 0.100000001 0.950000167 0.075000003 1
+			0.100000001 0.950000167 0.150000006 0.950000167 0.125 1 0.150000006 0.950000167 0.200000003 0.950000167 0.175000012 1
+			0.200000003 0.950000167 0.25 0.950000167 0.225000009 1 0.25 0.950000167 0.300000012 0.950000167 0.275000006 1
+			0.300000012 0.950000167 0.350000024 0.950000167 0.325000018 1 0.350000024 0.950000167 0.400000036 0.950000167 0.375 1
+			0.400000036 0.950000167 0.450000048 0.950000167 0.425000012 1 0.450000048 0.950000167 0.50000006 0.950000167 0.475000024 1
+			0.50000006 0.950000167 0.550000072 0.950000167 0.524999976 1 0.550000072 0.950000167 0.600000083 0.950000167 0.574999988 1
+			0.600000083 0.950000167 0.650000095 0.950000167 0.625 1 0.650000095 0.950000167 0.700000107 0.950000167 0.675000012 1
+			0.700000107 0.950000167 0.750000119 0.950000167 0.724999964 1 0.750000119 0.950000167 0.800000131 0.950000167 0.774999976 1
+			0.800000131 0.950000167 0.850000143 0.950000167 0.824999988 1 0.850000143 0.950000167 0.900000155 0.950000167 0.875 1
+			0.900000155 0.950000167 0.950000167 0.950000167 0.925000012 1 0.950000167 0.950000167 1.00000012 0.950000167 0.974999964 1]
+	ObjectEnd 
+	AttributeBegin 
+		Attribute "Ri" "int Sides" [2]
+		Attribute "grouping" "string membership" ["World"]
+		Attribute "identifier" "string name" ["|pSphere2|pSphereShape2"] "int id" [517817634] "int id2" [0]
+		Attribute "lightfilter" "string subset" [""]
+		Attribute "lighting" "int mute" [0] "string excludesubset" [""]
+		Attribute "shade" "float relativepixelvariance" [1]
+		Attribute "trace" "int maxspeculardepth" [4] "int maxdiffusedepth" [1]
+		Attribute "user" "string __materialid" ["blue_metallic_paint2_SG"]
+		Attribute "visibility" "int camera" [1] "int indirect" [1] "int transmission" [1]
+		Bxdf "PxrSurface" "blue_metallic_paint2" "string __materialid" ["blue_metallic_paint2_SG"]
+		Transform [ 0.657122076 0 0 0  0 0.657122076 0 0  0 0 0.657122076 0  -0.699849486 0.451657236 -1.40153122 1 ]
+		ObjectInstance "13814000-9a48-9a75-99dc-b06ebfbccf90" 
+	AttributeEnd 
+	AttributeBegin 
+		Attribute "Ri" "int Sides" [2]
+		Attribute "grouping" "string membership" ["World"]
+		Attribute "identifier" "string name" ["|pSphere3|pSphereShape2"] "int id" [-966895763] "int id2" [0]
+		Attribute "lightfilter" "string subset" [""]
+		Attribute "lighting" "int mute" [0] "string excludesubset" [""]
+		Attribute "shade" "float relativepixelvariance" [1]
+		Attribute "trace" "int maxspeculardepth" [4] "int maxdiffusedepth" [1]
+		Attribute "user" "string __materialid" ["blue_metallic_paint2_SG"]
+		Attribute "visibility" "int camera" [1] "int indirect" [1] "int transmission" [1]
+		Bxdf "PxrSurface" "gold_paint1" "string __materialid" ["gold_paint_SG1"]
+		Transform [ 0.657122076 0 0 0  0 0.657122076 0 0  0 0 0.657122076 0  -2.59243345 0.446899831 0.363009095 1 ]
+		ObjectInstance "13814000-9a48-9a75-99dc-b06ebfbccf90" 
+	AttributeEnd 
+	AttributeBegin 
+		Attribute "Ri" "int Sides" [2]
+		Attribute "grouping" "string membership" ["World"]
+		Attribute "identifier" "string name" ["|pSphere4|pSphereShape2"] "int id" [-1199480774] "int id2" [0]
+		Attribute "lightfilter" "string subset" [""]
+		Attribute "lighting" "int mute" [0] "string excludesubset" [""]
+		Attribute "shade" "float relativepixelvariance" [1]
+		Attribute "trace" "int maxspeculardepth" [4] "int maxdiffusedepth" [1]
+		Attribute "user" "string __materialid" ["blue_metallic_paint2_SG"]
+		Attribute "visibility" "int camera" [1] "int indirect" [1] "int transmission" [1]
+		Bxdf "PxrSurface" "Car_Paint_Metallic_Shader" "string __materialid" ["Car_Paint_Metallic_ShaderSG"]
+		Transform [ 0.657122076 0 0 0  0 0.657122076 0 0  0 0 0.657122076 0  -0.0237221718 0.449831069 1.78487623 1 ]
+		ObjectInstance "13814000-9a48-9a75-99dc-b06ebfbccf90" 
+	AttributeEnd 
+WorldEnd 
