@@ -1,4 +1,4 @@
-set RMAN_VERSION=22.4
+set RMAN_VERSION=23.2
 set RMANTREE=C:\\Program Files\Pixar\RenderManProServer-%RMAN_VERSION%\
 
 "%RMANTREE%\bin\prman" -progress fisheye_debug.rib

@@ -15,12 +15,12 @@ Option "hider" "int minsamples" [0] "int maxsamples" [64] "float darkfalloff" [0
 # example linux search path
 #Option "searchpath" "string rixplugin" ["/scenes/rman/custom/plugins:@"]
 # example windows search path, need to escape backslashes
-#Option "searchpath" "string rixplugin" ["D:\\scenes\\rman\\custom\\plugins:@"]
-Option "searchpath" "string rixplugin" ["D:\\tools\\github\\Earlyworm-Pxr\\plugin\\r22.4\\windows:@"]
+Option "searchpath" "string rixplugin" ["D:\\scenes\\rman\\custom\\plugins:@"]
+#Option "searchpath" "string rixplugin" ["D:\\tools\\github\\Earlyworm-Pxr\\plugin\\r22.4\\windows:@"]
 
 Option "trace" "string worldorigin" ["worldoffset"] "float[3] worldoffset" [1.13878965 0.200286493 -0.458441764]
 Option "statistics" "int level" [1] "string xmlfilename" ["fisheye_art.${renderversion}.xml"]
-Integrator "PxrPathTracer" "PxrPathTracer" "int maxPathLength" [10]
+Integrator "PxrPathTracer" "PxrPathTracer"
 DisplayChannel "color Ci" "string source" ["Ci"]
 DisplayChannel "float a" "string source" ["a"]
 Projection "WillFisheye" "float fieldOfView" [180]

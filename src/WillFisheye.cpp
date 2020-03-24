@@ -101,7 +101,7 @@ WillFisheye::WillFisheye(
     PIXAR_ARGUSED(params);
 }
 
-void WillActionCam::RenderBegin(
+void WillFisheye::RenderBegin(
     RixContext& ctx,
     RixProjectionEnvironment const& env,
     RixParameterList const* parms)
@@ -129,7 +129,7 @@ void WillActionCam::RenderBegin(
     xyStep = std::max( xStep, yStep );
     spread =  2.0f * (F_PI * 0.5) * xyStep;
 
-    env.deepMetric = RixProjectionEnvironment::k_rayLength;
+    //env.deepMetric = RixProjectionEnvironment::k_rayLength;
 }
 
 WillFisheye::~WillFisheye()
@@ -211,7 +211,7 @@ RixSCParamInfo const* WillFisheyeFactory::GetParamTable()
 {
     static RixSCParamInfo s_ptable[] =
     {
-        // orthographic camera has no parameters
+        RixSCParamInfo( US_FOV, k_RixSCFloat ),
         RixSCParamInfo() // end of table
     };
     return &s_ptable[ 0 ];
