@@ -1,0 +1,59 @@
+<args format="1.0">
+    <shaderType>
+        <tag value="displayfilter"/>
+    </shaderType>
+    <help>
+        Converts linear into cineon output. 
+    </help>
+
+    <param name="A"
+           label="Blackpoint"
+           type="float"
+           default="95.0"
+           widget="float"
+           connectable="False">
+        <tags>
+            <tag value="default"/>
+        </tags>
+        <help>
+            Blackpoint.
+        </help>
+    </param>
+    <param name="B"
+           label="Whitepoint"
+           type="float"
+           default="685"
+           widget="float"
+           connectable="False">
+        <tags>
+            <tag value="default"/>
+        </tags>
+        <help>
+            Whitepoint.
+        </help>
+    </param>
+    <param name="C"
+           label="Gamma"
+           type="float"
+           default="0.6"
+           widget="float"
+           connectable="False">
+        <tags>
+            <tag value="default"/>
+        </tags>
+        <help>
+            Gamma.
+        </help>
+    </param>
+    
+    <param name="aov"
+        label="AOV"
+        type="string"
+        default="Ci"
+        widget="string"
+        connectable="False">
+        <help>Name of AOV to apply filter to.</help>
+    </param>
+      <rfmdata nodeid="2057286"
+        classification="rendernode/RenderMan/samplefilter"/>
+</args>

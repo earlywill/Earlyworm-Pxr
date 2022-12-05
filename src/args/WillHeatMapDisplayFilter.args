@@ -1,0 +1,93 @@
+<args format="1.0">
+    <shaderType>
+        <tag value="displayfilter"/>
+    </shaderType>
+    <help>
+        Converts linear into cineon output. 
+    </help>
+
+    <param name="A"
+           label="Min Value"
+           type="float"
+           default="0"
+           widget="float"
+           connectable="False">
+        <tags>
+            <tag value="default"/>
+        </tags>
+        <help>
+            Blackpoint.
+        </help>
+    </param>
+    <param name="B"
+           label="Max Value"
+           type="float"
+           default="64"
+           widget="float"
+           connectable="False">
+        <tags>
+            <tag value="default"/>
+        </tags>
+        <help>
+            Whitepoint.
+        </help>
+    </param>
+    <param name="C"
+           label="Saturation"
+           type="float"
+           default="0.8"
+           widget="float"
+           connectable="False">
+        <tags>
+            <tag value="default"/>
+        </tags>
+        <help>
+            Gamma.
+        </help>
+    </param>
+    <param name="D"
+           label="Luminance"
+           type="float"
+           default="0.8"
+           widget="float"
+           connectable="False">
+        <tags>
+            <tag value="default"/>
+        </tags>
+        <help>
+            Gamma.
+        </help>
+    </param>
+    <param name="turboLut"
+           label="Turbo LUT"
+           type="integer"
+           default="0"
+           widget="checkBox"
+           connectable="False">
+        <tags>
+            <tag value="default"/>
+        </tags>
+        <help>
+            Use the "Turbo" LUT from Google. https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html
+        </help>
+    </param>
+    
+    <param name="readAov"
+        label="Read AOV"
+        type="string"
+        default="sampleCount"
+        widget="string"
+        connectable="False">
+        <help>Name of AOV to read from.</help>
+    </param>
+    <param name="writeAov"
+        label="Write AOV"
+        type="string"
+        default="heatMap"
+        widget="string"
+        connectable="False">
+        <help>Name of AOV to write to.</help>
+    </param>
+      <rfmdata nodeid="2052386"
+        classification="rendernode/RenderMan/samplefilter"/>
+</args>

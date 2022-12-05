@@ -1,0 +1,47 @@
+<args format="1.0">
+  <shaderType>
+    <tag value="projection"/>
+  </shaderType>
+  <help>
+    A simple parallel projection camera.
+  </help>
+  <param name="orthoWidth" label="Orthographic Width" type="float" widget="default"
+         default="1.0" min="0.1" max="1.0e16"
+         connectable="False">
+    <help>
+       Orthographic width, modifies the screen window scale.
+    </help>
+  </param>
+  <param name="modulo" label="Modulo" type="float" widget="default"
+         default="1.0" min="0.001" max="1000"
+         connectable="False">
+    <help>
+       Modulates stuff.
+    </help>
+  </param>
+  <param name="altView" label="Alt View" type="matrix" widget="default"
+         connectable="False">
+    <help>
+       Matrix stuff.
+    </help>
+  </param>
+  <param name="top" label="Top View" type="matrix" widget="default"
+         connectable="False">
+    <help>
+       Matrix stuff.
+    </help>
+  </param>
+  <param name="side" label="Side View" type="matrix" widget="default"
+         connectable="False">
+    <help>
+       Matrix stuff.
+    </help>
+  </param>
+  <param name="front" label="Front View" type="matrix" widget="default"
+         connectable="False">
+    <help>
+       Matrix stuff.
+    </help>
+  </param>
+  <rfmdata nodeid="1201491" classification="RenderMan/projection"/>
+</args>

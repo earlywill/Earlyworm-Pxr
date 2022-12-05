@@ -2,12 +2,12 @@ rem set to custom plugin location
 set CUSTOM_PLUGIN_PATH="D:\scenes\rman\custom\plugins"
 echo %CUSTOM_PLUGIN_PATH%
 rem uncomment the line below to specify custom RMANTREE
-set RMAN_VERSION="23.5"
+set RMAN_VERSION="23.2"
 set RMANTREE=C:\\Program Files\Pixar\RenderManProServer-%RMAN_VERSION%\
 
 rem set path to version builds
 set BUILD_PLUGIN_PATH="D:\tools\github\Earlyworm-Pxr\plugin\r%RMAN_VERSION%\windows\"
-set PLUGIN_NAME="WillActionCam"
+set PLUGIN_NAME="WillContactSheet"
 
 mkdir %BUILD_PLUGIN_PATH%\args
 

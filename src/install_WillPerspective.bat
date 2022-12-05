@@ -7,7 +7,7 @@ set RMANTREE=C:\\Program Files\Pixar\RenderManProServer-%RMAN_VERSION%\
 
 rem set path to version builds
 set BUILD_PLUGIN_PATH="D:\tools\github\Earlyworm-Pxr\plugin\r%RMAN_VERSION%\windows\"
-set PLUGIN_NAME="WillActionCam"
+set PLUGIN_NAME="WillPerspective"
 
 mkdir %BUILD_PLUGIN_PATH%\args
 
