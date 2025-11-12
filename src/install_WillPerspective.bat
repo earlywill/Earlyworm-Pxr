@@ -2,7 +2,7 @@ rem set to custom plugin location
 set CUSTOM_PLUGIN_PATH="D:\scenes\rman\custom\plugins"
 echo %CUSTOM_PLUGIN_PATH%
 rem uncomment the line below to specify custom RMANTREE
-set RMAN_VERSION="23.5"
+set RMAN_VERSION="26.3"
 set RMANTREE=C:\\Program Files\Pixar\RenderManProServer-%RMAN_VERSION%\
 
 rem set path to version builds
@@ -12,8 +12,8 @@ set PLUGIN_NAME="WillPerspective"
 mkdir %BUILD_PLUGIN_PATH%\args
 
 rem set this to the your MSVC install
-call "D:\programs\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
-
+rem call "D:\programs\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
 
 rem WillActionCam
 rem cl -c -I"%RMANTREE%\include"   /D "WIN32" /D "_WINDLL"  /EHsc  WillActionCam.cpp

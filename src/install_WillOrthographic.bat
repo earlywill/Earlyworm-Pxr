@@ -2,7 +2,7 @@ rem set to custom plugin location
 set CUSTOM_PLUGIN_PATH="D:\scenes\rman\custom\plugins"
 echo %CUSTOM_PLUGIN_PATH%
 rem uncomment the line below to specify custom RMANTREE
-set RMAN_VERSION="23.2"
+set RMAN_VERSION="24.4"
 set RMANTREE=C:\\Program Files\Pixar\RenderManProServer-%RMAN_VERSION%\
 
 rem set path to version builds
@@ -12,7 +12,7 @@ set PLUGIN_NAME="WillOrthographic"
 mkdir %BUILD_PLUGIN_PATH%\args
 
 rem set this to the your MSVC install
-call "D:\programs\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+call "D:\programs\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
 
 
 rem WillActionCam

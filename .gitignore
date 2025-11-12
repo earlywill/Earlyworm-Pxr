@@ -17,3 +17,9 @@ plugin/r23.5/windows/WillActionCam.dll
 plugin/r23.5/windows/WillPerspective.dll
 plugin/r23.5/windows/args/WillActionCam.args
 plugin/r23.5/windows/args/WillPerspective.args
+plugin/r27.0b1/windows/args/WillPerspective.args
+plugin/r26.3/windows/WillPerspective.dll
+plugin/r26.3/windows/args/WillPerspective.args
+plugin/r26.3/windows/args/WillDistortion.args
+plugin/r24.4/windows/WillPerspective.dll
+plugin/r24.4/windows/args/WillPerspective.args
