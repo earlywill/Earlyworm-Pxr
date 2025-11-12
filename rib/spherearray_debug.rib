@@ -1,0 +1,40 @@
+PixelVariance 0.01
+Hider "raytrace" "int incremental" [1]
+Format 1024 512 1
+Display "SphereProc.exr" "openexr" "rgba"
+Projection "perspective" "fov" 60
+Translate 0 0 100
+Shutter 0 1
+WorldBegin
+    AttributeBegin
+        Pattern "PxrManifold2D" "man"
+            "float scaleS" [10]
+            "float scaleT" [10]
+        Pattern "PxrChecker" "checker"
+            "color colorA" [1 0.5 0]
+            "color colorB" [0 0.5 1]
+            "reference struct manifold" ["man:result"]
+        Bxdf "PxrDiffuse" "bxdf"
+            "reference color diffuseColor" ["checker:resultRGB"]
+            "string __materialid" ["material"]
+        Displace "PxrDisplace" "displace"
+            "reference float dispScalar" ["checker:resultR"]
+            "float dispAmount" [0.1]
+            "string __materialid" ["material"]
+        Light "PxrMeshLight" "light"
+            "string __materialid" ["material"]
+    AttributeEnd
+
+    AttributeBegin
+        
+      Procedural2 "DynamicLoad2" "SimpleBound"
+      "constant string __dsoname" ["SphereArray.so"]
+	  "constant int total" [10000000]
+	  "constant float spread" [1.0]
+      "constant float radius" [0.1]
+      "constant int immediatesubdivide" [1]
+      "constant float[6] __bound" [-100000 100000 -100000 100000 -100000 100000]
+        
+    AttributeEnd
+
+WorldEnd

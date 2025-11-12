@@ -2,7 +2,9 @@
 
 Plugin(s?) for Pixar's RenderMan.
 
-Provided largely as-is for the moment.
+Provided largely as-is for the moment. This is a collection of various plugins I've tried to create over the years. Install is largely focused on Windows environment.
+
+Most of these were started in R23 and R24, they will likely need updates to work under newer versions of RenderMan.
 
 ## Install
 
@@ -34,5 +36,8 @@ On Windows. If you've installed your plugin in a folder called D:/scenes/rman/cu
 `Option "searchpath" "string rixplugin" ["D:\\scenes\\rman\\custom\\plugins:@"]`
 
 ## TODO
+
+* Cleanup folder structure. 
+* Update to latest R26 API
 
 

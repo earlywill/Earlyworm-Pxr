@@ -1,0 +1,17 @@
+<args format="1.0">
+    <page name="Parameters" open="True">
+        <param name="__dsoname" type="string" default="SphereArray.so" match="-none-"/>
+        <param name="radius" type="float" default="1"/>
+        <param name="total" type="int" default="1"/>
+        <param name="spread" type="float" default="1"/>
+        <param name="bxdf" match="rman_bxdf" type="string" default=""/>
+        <param name="light" match="rman_light" type="string" default=""/>
+        <param name="displace" match="rman_displace" type="string" default=""/>
+        <param name="displacementbound" match="rman_displacementbound" type="float" default="0"/>
+        <param name="data" type="string" default="" match="rman_data"/>
+    </page>
+    <typeTag>
+        <tag value="procedural2"/>
+    </typeTag>
+    <rfmdata classification="RenderMan/procedural"/>
+</args>
